@@ -94,7 +94,7 @@ public class ElvenFakePlayerHandler  {
 	
 	public void initClient(World w, BlockPos pos,TileElvenAvatar avatar)  {
 		if (!w.isRemote) return;
-		if (!Config.disableFakePlayerAddedToWorld)return;
+		if (Config.disableFakePlayerAddedToWorld)return;
 		
 		UUID nameUuid=avatar.getUUID();
 		if (nameUuid==null) return;
@@ -286,19 +286,27 @@ public class ElvenFakePlayerHandler  {
 	
 	public class ElvenEntityPlayer extends EntityPlayer implements IsetSpectator{
 		private boolean spectatorValue=false; //equal to server.
+		private boolean elvenSleeping;
 
 		public ElvenEntityPlayer(World worldIn, GameProfile gameProfileIn) {
 			super(worldIn, gameProfileIn);
 			this.onGround = true;
 			this.setSilent(true);	
 			this.setSneaking(false);
-			this.sleeping=false;			
+			this.sleeping=false;	
+			this.elvenSleeping=false;
 		}
 		
 		@Override
 		public boolean isPlayerFullyAsleep() {
-			return this.sleeping;			
+			return this.elvenSleeping;			
 		}
+		
+		@Override
+	    public boolean isPlayerSleeping()
+	    {
+	        return this.elvenSleeping;
+	    }
 		
 		@Override
 		public void setSpectator (boolean value) {
@@ -324,6 +332,7 @@ public class ElvenFakePlayerHandler  {
 
 	public class ElvenFakePlayer extends FakePlayer implements IsetSpectator{
 		private boolean spectatorValue=false;
+		private boolean elvenSleeping;
 		public ElvenFakePlayer(WorldServer world, GameProfile name) {
 			super(world, name);
 			this.onGround = true;
@@ -332,15 +341,20 @@ public class ElvenFakePlayerHandler  {
 		}
 		
 		public void  goToSleep(boolean value) {
-			this.sleeping=value;
+			this.elvenSleeping=value;
 		}
 		
 		@Override
 		public boolean isPlayerFullyAsleep() {
-			return this.sleeping;
-			
+			return this.elvenSleeping;			
 		}
 		
+		@Override
+	    public boolean isPlayerSleeping()
+	    {
+	        return this.elvenSleeping;
+	    }
+				
 		@Override
 		public void setSpectator (boolean value) {
 			spectatorValue=value;

@@ -25,7 +25,7 @@ import botaunomy.ItemStackType;
 import botaunomy.ItemStackType.Types;
 import botaunomy.client.render.SecuencesAvatar;
 import botaunomy.config.Config;
-import botaunomy.model.ModelAvatar3;
+import botaunomy.model.ModelAvatar;
 import botaunomy.network.MessageEnabled;
 import botaunomy.network.MessageMana;
 import botaunomy.network.MessageMoveArm;
@@ -65,7 +65,7 @@ import vazkii.botania.common.item.ModItems;
 public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile , ITickable ,IElvenAvatarItemHadlerChangedListener,IManaPool {
 	
 	public  SecuencesAvatar secuencesAvatar=new SecuencesAvatar();
-	private float[][] anglePoints= new float[ModelAvatar3.NARC][ModelAvatar3.NPOINTS];
+	private float[][] anglePoints= new float[ModelAvatar.NARC][ModelAvatar.NPOINTS];
 	
 	public static final int POINTS_SEQUENCE_DURATION = 125;	
 	public static final int MAX_MANA = 100000;// 1/5 ManaTablet
@@ -244,12 +244,12 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 	
 	public void updateRotatePoints(ModelRenderer[][] points,float[] RNDs,float elapsed) {
 		
-		for (int b=0;b<ModelAvatar3.NARC;b++)
-		for (int a=0; a<ModelAvatar3.NPOINTS;a++) {			
+		for (int b=0;b<ModelAvatar.NARC;b++)
+		for (int a=0; a<ModelAvatar.NPOINTS;a++) {			
 			int points_duration = 1000- ((1000-POINTS_SEQUENCE_DURATION)*(manaAvatar/MAX_MANA));						
 			anglePoints[b][a]+=((-3.1416F*2F/points_duration)*elapsed)*RNDs[a];
 			if(anglePoints[b][a]>(-3.1416F*2F)) anglePoints[b][a]-=(-3.1416F*2F);			
-			points[b][a].rotateAngleY=anglePoints[b][a]+(((-3.1416F*2.F)/ModelAvatar3.NARC)*b);
+			points[b][a].rotateAngleY=anglePoints[b][a]+(((-3.1416F*2.F)/ModelAvatar.NARC)*b);
 			points[b][a].rotateAngleZ=points[b][a].rotateAngleY;
 			points[b][a].rotateAngleX=points[b][a].rotateAngleY;			
 		}		

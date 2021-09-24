@@ -15,7 +15,7 @@ import org.lwjgl.opengl.GL11;
 import botaunomy.ModBlocks;
 import botaunomy.ModResources;
 import botaunomy.block.tile.TileElvenAvatar;
-import botaunomy.model.ModelAvatar3;
+import botaunomy.model.ModelAvatar;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -48,7 +48,7 @@ public class RenderTileElvenAvatar extends TileEntitySpecialRenderer<TileElvenAv
 
 	private static final ResourceLocation avatarTexture = new ResourceLocation(ModResources.MODEL_ELVEN_AVATAR3);
 	private static final ResourceLocation overlayTexture = new ResourceLocation(ModResources.MODEL_ELVEN_AVATAR_OVERLAY);
-	private static final ModelAvatar3 model = new ModelAvatar3();
+	//private static final ModelAvatarTest model = new ModelAvatarTest();
 	private static final double DESPL =0.22;
 
 	
@@ -98,7 +98,7 @@ public class RenderTileElvenAvatar extends TileEntitySpecialRenderer<TileElvenAv
 				}
 		
 				boolean risearm= (stack!=null)&&(!stack.isEmpty())&&(!avatar.secuencesAvatar.isActive());				
-				model.render(avatar,pticks,risearm);
+				ModelAvatar.render(avatar,pticks,risearm);
 
 				if (avatar == null) {
 					GlStateManager.color(1F, 1F, 1F);
@@ -188,7 +188,7 @@ public class RenderTileElvenAvatar extends TileEntitySpecialRenderer<TileElvenAv
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lightmapX, lightmapY);
 		float alpha = (float) Math.sin(ClientTickHandler.ticksInGame / 20D) / 2F + 0.5F;
 		GlStateManager.color(1F, 1F, 1F, alpha + 0.183F);
-		model.render(avatar,pticks,risearm);
+		ModelAvatar.render(avatar,pticks,risearm);		
 		GlStateManager.popMatrix();	
 	}
 	

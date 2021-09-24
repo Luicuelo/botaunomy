@@ -22,5 +22,7 @@ public class ModResources {
 	public static final String MODEL_AVATAR_WILL_WORK = PREFIX_MODEL + "avatar_will.png";
 	
 	public static final String MODEL_GRIS= PREFIX_MODEL + "gris.png";
+	
+	public static final String MODEL_JSON_ELVEN_AVATAR=  PREFIX_MOD + "custom/modelavatar.json";
 
 }
