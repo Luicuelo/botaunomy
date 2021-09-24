@@ -13,7 +13,7 @@
  ******************************************************************************/
 
 //TODO
-//Code to load a json model.
+//server fails
 
 
 package botaunomy.block.tile;

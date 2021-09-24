@@ -49,7 +49,7 @@ public class Config {
 
             cfg.load();
             initGeneralConfig(cfg);
-            initDimensionConfig(cfg);
+            //initDimensionConfig(cfg);
 
 		} catch (Exception e1) {
 			Botaunomy.logger.log(Level.ERROR, "Problem loading config file!", e1);
@@ -60,7 +60,23 @@ public class Config {
 		}
 	}
 
-    private static void initGeneralConfig(Configuration cfg) {
+	public static void splitStrings() {
+        //is needed to check if had shear , by defaut returns always true.
+        if (toolsCanBeUsedOnBlock.length()>0)
+        	onBlockToolsList = toolsCanBeUsedOnBlock.split(";");
+        if (toolsCanBeUsedWithEntities.length()>0)
+        	entitiesToolsList = toolsCanBeUsedWithEntities.split(";");
+        if (toolsCanShearEntities.length()>0)
+        	entitiesShearsList = toolsCanShearEntities.split(";");
+        if (toolsCanAtackEntities.length()>0)
+        	entitiesAtacksList = toolsCanAtackEntities.split(";");
+        if (itemsContainMana.length()>0)
+        	itemsContainManaList = itemsContainMana.split(";");
+        if (itemsJustRighClick.length()>0)
+        	itemsJustRighClickList = itemsJustRighClick.split(";");
+		
+	}
+    public static void initGeneralConfig(Configuration cfg) {
         cfg.addCustomCategoryComment(CATEGORY_GENERAL, "General configuration");
         
         fakePlayersAreAsleep=cfg.getBoolean("FakePlayers_AreSleep", CATEGORY_GENERAL, fakePlayersAreAsleep, "if true fake player are asleep, false to use with vote system to sleep");
@@ -78,24 +94,8 @@ public class Config {
         breakManaCost=cfg.getInt("Cost_BreakManaCost", CATEGORY_GENERAL, breakManaCost, 50, 1000, "Mana cost each time avatar try to break a block");        
         mobSpawnerCostPertick=cfg.getInt("Cost_MobSpawnerCostPertick", CATEGORY_GENERAL, mobSpawnerCostPertick, 1, 10, "Mana cost per tick for ativate mob spawners");
 
-        //is needed to check if had shear , by defaut returns always true.
-        if (toolsCanBeUsedOnBlock.length()>0)
-        	onBlockToolsList = toolsCanBeUsedOnBlock.split(";");
-        if (toolsCanBeUsedWithEntities.length()>0)
-        	entitiesToolsList = toolsCanBeUsedWithEntities.split(";");
-        if (toolsCanShearEntities.length()>0)
-        	entitiesShearsList = toolsCanShearEntities.split(";");
-        if (toolsCanAtackEntities.length()>0)
-        	entitiesAtacksList = toolsCanAtackEntities.split(";");
-        if (itemsContainMana.length()>0)
-        	itemsContainManaList = itemsContainMana.split(";");
-        if (itemsJustRighClick.length()>0)
-        	itemsJustRighClickList = itemsJustRighClick.split(";");
+        splitStrings();
         
-    }
-
-    private static void initDimensionConfig(Configuration cfg) {
-        cfg.addCustomCategoryComment(CATEGORY_DIMENSION, "Dimension configuration");
     }
 
 }

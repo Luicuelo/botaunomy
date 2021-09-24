@@ -42,10 +42,7 @@ public abstract class CommonProxy {
 		ModDimensions.init();
 		
 		ModSimpleNetworkChannel.registerMessages();
-		
 
-				
-		
 	}
 
 	/**

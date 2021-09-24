@@ -24,9 +24,10 @@ $ModelRenderer_values
 
 $definition_ModelRendered=""
 $ModelRenderer_values=""
+$render=""
 foreach ($elementoJson in $json.elements){
     $elements.Add($elementoJson.name)
-    $definition_ModelRendered+="private ModelRenderer "+$elementoJson.name+";`r`n"
+    $definition_ModelRendered+="`tprivate ModelRenderer "+$elementoJson.name+";`r`n"
 
         #size
         $size = New-Object point
@@ -73,10 +74,12 @@ foreach ($elementoJson in $json.elements){
         #$tyf=($elementoJson.faces.west.uv[3])
 		
 
-    $ModelRenderer_values+=$elementoJson.name+"=new ModelRenderer(this);`r`n"
-    $ModelRenderer_values+=$elementoJson.name+".setRotationPoint("+$x+"F,"+$y+"F,"+$z+"F);`r`n"
-    $ModelRenderer_values+=$elementoJson.name+".cubeList.add(new ModelBox("+$elementoJson.name+","+$txi+","+$tyi+","+$px+"F,"+$py+"F,"+ $pz+"F,"+  $size.X+","+ $size.y+","+ $size.z+", 0.0F,"+$textureMirrorx.ToString().ToLower() + "));`r`n"
+    $ModelRenderer_values+="`t`t"+$elementoJson.name+"=new ModelRenderer(this);`r`n"
+    $ModelRenderer_values+="`t`t"+$elementoJson.name+".setRotationPoint("+$x+"F,"+$y+"F,"+$z+"F);`r`n"
+    $ModelRenderer_values+="`t`t"+$elementoJson.name+".cubeList.add(new ModelBox("+$elementoJson.name+","+$txi+","+$tyi+","+$px+"F,"+$py+"F,"+ $pz+"F,"+  $size.X+","+ $size.y+","+ $size.z+", 0.0F,"+$textureMirrorx.ToString().ToLower() + "));`r`n"
     $ModelRenderer_values+="`r`n"
+
+    $render+="`t`tthis."+$elementoJson.name+".render(scale);`r`n"
 
 }
 
@@ -92,34 +95,22 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class @(name) extends ModelBase
 {
 	
-    @(definition_ModelRendered)
+@(definition_ModelRendered)
 	
     public  @(name) () {
 
     this.textureWidth = @(textureWidth);
     this.textureHeight = @(textureHeight);		
 
-    @(ModelRenderer_values)
-		
-}
+@(ModelRenderer_values)		
+    }
 
 	public void render() {				
 		
-	        float scale = 0.06666667F;	        	      
-			this.body.render(scale);
-			this.rightarm.render(scale);
-			this.leftarm.render(scale);
-			this.rightleg.render(scale);
-			this.leftleg.render(scale);
-			this.head.render(scale);
-			this.botton.render(scale);			
+	    float scale = 0.06666667F;	        	      
+@(render)
 	}
-	
-	public void setRotationAngle(ModelRenderer modelRenderer, float x, float y, float z) {
-		modelRenderer.rotateAngleX = x;
-		modelRenderer.rotateAngleY = y;
-		modelRenderer.rotateAngleZ = z;
-	}
+
 }"
 
 $template=$template.Replace("@(name)",$name)
@@ -127,6 +118,7 @@ $template=$template.Replace("@(textureWidth)",$texture_sizeWith)
 $template=$template.Replace("@(textureHeight)",$texture_sizeheight)
 $template=$template.Replace("@(definition_ModelRendered)",$definition_ModelRendered)
 $template=$template.Replace("@(ModelRenderer_values)",$ModelRenderer_values)
+$template=$template.Replace("@(render)",$render)
 
 
 
