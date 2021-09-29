@@ -42,7 +42,7 @@ version = ModInfo.version,
 useMetadata = true,
 dependencies = "required-after:botania",
 acceptedMinecraftVersions = "[1.12,1.12.2]",
-acceptableRemoteVersions = "[0.3.5]",
+acceptableRemoteVersions = "[0.3.6]",
 guiFactory = ModInfo.modid+".config.ConfigGui")
 
 public class Botaunomy

@@ -72,7 +72,6 @@ public class ElvenAvatarBlock extends BlockBase implements ILexiconable,TileEnti
 	
 	@Override
 	public void renderHUD(Minecraft mc, ScaledResolution res, World world, BlockPos pos) {
-		// TODO Auto-generated method stub
 		
 		TileElvenAvatar avatar = (TileElvenAvatar) world.getTileEntity(pos);
 		if(avatar != null)

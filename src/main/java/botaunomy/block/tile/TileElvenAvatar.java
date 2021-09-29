@@ -20,7 +20,9 @@ package botaunomy.block.tile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
 import org.lwjgl.opengl.GL11;
+import com.google.common.base.Predicates;
 import botaunomy.ItemStackType;
 import botaunomy.ItemStackType.Types;
 import botaunomy.client.render.SecuencesAvatar;
@@ -37,6 +39,7 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumDyeColor;
@@ -48,6 +51,7 @@ import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import vazkii.botania.api.internal.VanillaPacketDispatcher;
 import vazkii.botania.api.item.IAvatarTile;
@@ -55,17 +59,28 @@ import vazkii.botania.api.item.IAvatarWieldable;
 import vazkii.botania.api.item.IManaDissolvable;
 import vazkii.botania.api.mana.IManaItem;
 import vazkii.botania.api.mana.IManaPool;
+import vazkii.botania.api.mana.spark.ISparkAttachable;
+import vazkii.botania.api.mana.spark.ISparkEntity;
 import vazkii.botania.api.state.BotaniaStateProps;
 import vazkii.botania.client.core.handler.HUDHandler;
+import vazkii.botania.common.Botania;
 import vazkii.botania.common.block.tile.TileSimpleInventory;
+import vazkii.botania.common.core.handler.ConfigHandler;
 import vazkii.botania.common.core.handler.ModSounds;
+import vazkii.botania.common.core.helper.Vector3;
+import vazkii.botania.common.entity.EntitySpark;
 import vazkii.botania.common.item.ItemManaTablet;
 import vazkii.botania.common.item.ModItems;
 
-public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile , ITickable ,IElvenAvatarItemHadlerChangedListener,IManaPool {
+public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile , ITickable ,IElvenAvatarItemHadlerChangedListener,IManaPool,ISparkAttachable {
+
+	private static final int CRAFT_EFFECT_EVENT = 0;
+	private static final int CHARGE_EFFECT_EVENT = 1;
+
 	
 	public  SecuencesAvatar secuencesAvatar=new SecuencesAvatar();
 	private float[][] anglePoints= new float[ModelAvatar.NARC][ModelAvatar.NPOINTS];
+
 	
 	public static final int POINTS_SEQUENCE_DURATION = 125;	
 	public static final int MAX_MANA = 100000;// 1/5 ManaTablet
@@ -93,6 +108,7 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 	private UUID playerUUID=null;
 	public boolean playerIsSpectator=false;
 	
+	private boolean haveSpark=false;
 	
 	public TileElvenAvatar() {	
 		super();
@@ -448,8 +464,7 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 	}
     
     @Override
-    protected SimpleItemStackHandler createItemHandler() {
-    	//TileSimpleInventory        	
+    protected SimpleItemStackHandler createItemHandler() {	
     	return new ElvenAvatarItemHadler(this, true);        
     }
 
@@ -482,7 +497,8 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 	@Override
 	public void recieveMana(int mana) {
 		this.manaAvatar = Math.max(0, Math.min(MAX_MANA, this.manaAvatar + mana));
-		markDirty();		
+		new MessageMana(getPos(),manaAvatar);
+		markDirty();				
 	}
 
 	@Override
@@ -560,6 +576,7 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 	public void renderHUD(Minecraft mc, ScaledResolution res)
 	{
 		{
+			
 			Block avatarBlock= getWorld().getBlockState(pos).getBlock();
 			//ItemStack avatarStack = new ItemStack(avatarBlock);
 			
@@ -776,5 +793,79 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 	
     }
 	
+	
+
+
+	@Override
+	public boolean canAttachSpark(ItemStack stack) {
+	   return true;	    
+	}
+
+	@Override
+	public void attachSpark(ISparkEntity entity) {
+		haveSpark=true;
+	}
+
+	@Override
+	public int getAvailableSpaceForMana() {
+		return TileElvenAvatar.MAX_MANA-manaAvatar;
+	}
+
+	@Override
+	public ISparkEntity getAttachedSpark() {
+		AxisAlignedBB bounding=new AxisAlignedBB(pos.up(), pos.up().add(1, 1, 1));
+		EntitySpark spark;
+	    List<Entity> sparks;       
+	    sparks = world.getEntitiesWithinAABB(Entity.class,bounding, Predicates.instanceOf(ISparkEntity.class));
+	    if(sparks.size() == 1) {	    	
+	    	 spark= (EntitySpark) sparks.get(0);	 	    	
+	    	if (spark!=null && spark.isEntityAlive()) {
+	    		return spark;
+	    	}
+	    }
+	    
+	    if(haveSpark) {
+	    	markDirty();
+		    haveSpark=false;
+	    }
+	    return null;		 	
+	}
+
+	@Override
+	public boolean areIncomingTranfersDone() {
+		return this.isFull();
+	}
+	
+	@Override
+	public boolean receiveClientEvent(int event, int param) {
+		switch(event) {
+			case CRAFT_EFFECT_EVENT: {
+				if(world.isRemote) {
+					for(int i = 0; i < 25; i++) {
+						float red = (float) Math.random();
+						float green = (float) Math.random();
+						float blue = (float) Math.random();
+						Botania.proxy.sparkleFX(pos.getX() + 0.5 + Math.random() * 0.4 - 0.2, pos.getY() + 0.75, pos.getZ() + 0.5 + Math.random() * 0.4 - 0.2,
+									red, green, blue, (float) Math.random(), 10);
+					}
+				}
+
+				return true;
+			}
+			case CHARGE_EFFECT_EVENT: {
+				if(world.isRemote) {
+					if(ConfigHandler.chargingAnimationEnabled) {
+						boolean outputting = param == 1;
+						Vector3 itemVec = Vector3.fromBlockPos(pos).add(0.5, 0.5 + Math.random() * 0.3, 0.5);
+						Vector3 tileVec = Vector3.fromBlockPos(pos).add(0.2 + Math.random() * 0.6, 0, 0.2 + Math.random() * 0.6);
+						Botania.proxy.lightningFX(outputting ? tileVec : itemVec,
+								outputting ? itemVec : tileVec, 80, world.rand.nextLong(), 0x4400799c, 0x4400C6FF);
+					}
+				}
+				return true;
+			}
+			default: return super.receiveClientEvent(event, param);
+		}
+	}
 	
 }
