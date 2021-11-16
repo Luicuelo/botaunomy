@@ -692,12 +692,26 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 			//if (!isHalfAvatarTick()) return ItemStack.EMPTY; //waits update changes
 			
 			boolean allow=false;
-			if (slot==1) allow=true;										
+			if (slot==1) allow=true;	
+			
 			if (slot==0 && ItemStackType.isStackType(getType0(),ItemStackType.Types.MANA)) {
-				Item itemmana=getInventory().get0().getItem();
-				if (itemmana instanceof IManaDissolvable) allow=false; //spawned to world when used
+				ItemStack stack=getInventory().get0();
+				Item itemmana=stack.getItem();				
+				if (itemmana instanceof IManaDissolvable) 
+					allow=false; //spawned to world when used
+				else {								
+					IManaItem tablet=(IManaItem)stack.getItem();
+					int manaActualTablet=tablet.getMana(stack);
+					if (wandManaToTablet && manaActualTablet>=tablet.getMaxMana(stack))
+						allow=true;					
+					if (!wandManaToTablet && manaActualTablet==0)
+						allow=true;	
+				}
+				//to transfer mana, only can extract if tablet is full or empty
 			}				 			
-			else allow=true;			
+			else allow=true;	
+			
+			
 			if (allow)return super.extractItem(slot, amount, simulate);
 				else return ItemStack.EMPTY;
 			
