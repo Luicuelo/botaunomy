@@ -1,12 +1,13 @@
 // Made with Powershell
 
 package botaunomy.model;
+import org.lwjgl.opengl.GL11;
 
 import botaunomy.block.tile.TileElvenAvatar;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBox;
 import net.minecraft.client.model.ModelRenderer;
-
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -27,8 +28,7 @@ public class ModelAvatar
 		private static ModelRenderer[][] points= new ModelRenderer[NARC][NPOINTS];
 		private static float[] rndForPoints= new float[NPOINTS];
 		@SuppressWarnings("unused")
-		private static boolean loaded=loadModelAvatar();
-		
+		private static boolean loaded=loadModelAvatar();		
 		private static class MyModelBase extends ModelBase{	
 			public MyModelBase() {}
 		}
@@ -107,7 +107,7 @@ public class ModelAvatar
 		return true;
 	}
 
-	public static void render(TileElvenAvatar avatar,float elapsed, boolean riseArm) {				
+	public static void render(TileElvenAvatar avatar,float elapsed, boolean riseArm, boolean renderPoints) {				
 	        float scale = 0.06666667F;	        
 	         rightarm.rotateAngleX=0;
 	         if (avatar!=null) { 
@@ -127,7 +127,7 @@ public class ModelAvatar
 	         ModelAvatar.head.render(scale);
 	         ModelAvatar.botton.render(scale);
 			
-			if (avatar!=null && avatar.isEnabled()  ) {
+			if (avatar!=null && avatar.isEnabled() && renderPoints ) {
 				
 				//float difscale=((float)(Math.random()*scale)/10F)-(scale/10F);
 				avatar.updateRotatePoints(points,rndForPoints,elapsed);
@@ -136,9 +136,39 @@ public class ModelAvatar
 				for (int a=0; a<NPOINTS;a++) {
 					if (!avatar.haveMana()||!avatar.haveItem()||!avatar.isEnabled()) break;
 					else if (Math.random()>.35)
-							points[b][a].render(scale*2F/3F);
+						//points[b][a].render(scale*2F/3F);
+						renderParticles(5,points[b][a],scale*2F/3F);
 				}
 			}			
 	}
 	
+    private static  void renderParticles( float partialTicks, ModelRenderer point, float scale)   {
+
+			//GlStateManager.pushMatrix();
+			GlStateManager.enableBlend();
+			GlStateManager.enableAlpha();
+			//GlStateManager.alphaFunc(516, 0.003921569F);
+			//GlStateManager.alphaFunc(516, 0.1F);     		    	
+			//GlStateManager.shadeModel(GL11.GL_SMOOTH);
+			GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+			//GlStateManager.depthMask(false);
+			//GlStateManager.disableTexture2D();
+			//GlStateManager.disableCull();
+	
+                 try
+                        {
+                            //particle.renderParticle(bufferbuilder, entityIn, partialTicks, f, f4, f1, f2, f3);
+                        	point.render(scale);
+                        }            
+                        catch (Throwable throwable){}
+	        
+	 		//GlStateManager.enableCull();
+            //GlStateManager.enableTexture2D();
+	        //GlStateManager.depthMask(true);    	     
+			//GlStateManager.shadeModel(GL11.GL_FLAT);
+			GlStateManager.disableAlpha();
+	        GlStateManager.disableBlend();   
+	        //GlStateManager.popMatrix();
+    }
+
 }

@@ -98,7 +98,7 @@ public class RenderTileElvenAvatar extends TileEntitySpecialRenderer<TileElvenAv
 				}
 		
 				boolean risearm= (stack!=null)&&(!stack.isEmpty())&&(!avatar.secuencesAvatar.isActive());				
-				ModelAvatar.render(avatar,pticks,risearm);
+				ModelAvatar.render(avatar,pticks,risearm,true);
 
 				if (avatar == null) {
 					GlStateManager.color(1F, 1F, 1F);
@@ -141,6 +141,7 @@ public class RenderTileElvenAvatar extends TileEntitySpecialRenderer<TileElvenAv
 	private void renderTool(TileElvenAvatar avatar,ItemStack stack, float s,boolean righthand) {
 		
 		GlStateManager.pushMatrix();
+		GlStateManager.enableAlpha();
 		Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);		
 		GlStateManager.scale(s, s, s);
 				
@@ -170,6 +171,7 @@ public class RenderTileElvenAvatar extends TileEntitySpecialRenderer<TileElvenAv
 		
 		Minecraft.getMinecraft().getRenderItem().renderItem(stack, ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND);
 		GlStateManager.popMatrix();		
+		GlStateManager.disableAlpha();
 	}
 	
 
@@ -188,7 +190,7 @@ public class RenderTileElvenAvatar extends TileEntitySpecialRenderer<TileElvenAv
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lightmapX, lightmapY);
 		float alpha = (float) Math.sin(ClientTickHandler.ticksInGame / 20D) / 2F + 0.5F;
 		GlStateManager.color(1F, 1F, 1F, alpha + 0.183F);
-		ModelAvatar.render(avatar,pticks,risearm);		
+		ModelAvatar.render(avatar,pticks,risearm,false);		
 		GlStateManager.popMatrix();	
 	}
 	
