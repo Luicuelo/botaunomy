@@ -254,13 +254,15 @@ public class ElvenFakePlayerHandler  {
 	}	
 	
 	public void inventoryToFakePlayer(TileElvenAvatar avatar ) {
+		
+		 if(refMyFakePlayer.get()==null)
+			 getRefAndRetryInit(avatar.getWorld(),  avatar.getPos(), avatar);
+		 if(refMyFakePlayer.get()==null) return;
 		 FakePlayer player=refMyFakePlayer.get();
 		 if (player!=null) {
 			 
-				ItemStack inventoryItem = avatar.getInventory().get0();
-				
-				if (inventoryItem!=null && !(inventoryItem.isEmpty())) {
-					
+				ItemStack inventoryItem = avatar.getInventory().get0();				
+				if (inventoryItem!=null && !(inventoryItem.isEmpty())) {					
 					//player.inventory.mainInventory.set(player.inventory.currentItem, inventoryItem);
 					//player.getAttributeMap().applyAttributeModifiers(inventoryItem.getAttributeModifiers(EntityEquipmentSlot.MAINHAND));
 					player.setHeldItem(EnumHand.MAIN_HAND, inventoryItem);
