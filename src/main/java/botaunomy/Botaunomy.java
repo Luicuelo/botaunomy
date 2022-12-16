@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 import botaunomy.command.HandCommand;
+import botaunomy.config.Config;
 import botaunomy.proxy.CommonProxy;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.text.TextComponentString;
@@ -118,8 +119,11 @@ public class Botaunomy
                    TextComponentString text = new TextComponentString(message);
                    text.getStyle().setColor(TextFormatting.GREEN);
                    
-                   for(EntityPlayer p:listReal) {                	  
-                	   p.sendMessage(text);
+                   
+                   if(Config.asleepMessage) {                   
+	                   for(EntityPlayer p:listReal) {                	  
+	                	   p.sendMessage(text);
+	                   }
                    }
                }               
            }else{ 

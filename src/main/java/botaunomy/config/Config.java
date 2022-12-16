@@ -39,6 +39,7 @@ public class Config {
     public static int mobSpawnerCostPertick=2;
     
     public static boolean fakePlayersAreAsleep=true;
+    public static boolean asleepMessage=false;
     public static boolean disableFakePlayerAddedToWorld=false;
     
     // Call this from CommonProxy.preInit(). It will create our config if it doesn't
@@ -80,6 +81,7 @@ public class Config {
         cfg.addCustomCategoryComment(CATEGORY_GENERAL, "General configuration");
         
         fakePlayersAreAsleep=cfg.getBoolean("FakePlayers_AreSleep", CATEGORY_GENERAL, fakePlayersAreAsleep, "if true fake player are asleep, false to use with vote system to sleep");
+        asleepMessage=cfg.getBoolean("FakePlayers_asleepMessage", CATEGORY_GENERAL, asleepMessage, "if true print debug message every night");        
         disableFakePlayerAddedToWorld=cfg.getBoolean("FakePlayers_DisableAddedToWorld", CATEGORY_GENERAL, disableFakePlayerAddedToWorld, "if true fake player are no added to word, so cant activate spawners");
         
         toolsCanBeUsedOnBlock = cfg.getString("ToolsCanBeUsedOnBlock", CATEGORY_GENERAL, toolsCanBeUsedOnBlock, "Set name of tools , or part of name, than can be used on block, separated by ;");
