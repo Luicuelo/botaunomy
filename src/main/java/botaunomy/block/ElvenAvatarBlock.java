@@ -168,13 +168,20 @@ public class ElvenAvatarBlock extends BlockBase implements ILexiconable,TileEnti
 			
 			boolean rodWorkOnPlayer= (stackOnRealPlayer.getItem() instanceof RodItem) && ItemStackType.isStackType(stackOnRealPlayerType,ItemStackType.Types.ROD_WORK);		
 			boolean wandOnPlayer=stackOnRealPlayer.getUnlocalizedName().equals("item.twigWand"); 
+			boolean avatarEmpy=avatar.getInventory().getType0().get(0)==ItemStackType.Types.NONE;
+			
 			//boolean rodWillOnAvatar= (stackOnAvatar.getItem() instanceof RodItem) && ItemStackType.getTypeTool(stackOnAvatar)==ItemStackType.Types.ROD_WILL;
 			
-			if(ItemStackType.isStackType(  avatar.getInventory().getType1() , ItemStackType.Types.ROD_WORK)) {//rod_work to player				
+			if(
+					(ItemStackType.isStackType(avatar.getInventory().getType1() , ItemStackType.Types.ROD_WORK))
+					&&
+					!(avatarEmpy&&!stackOnRealPlayer.isEmpty()) //if avatar right hand is empty only gives work rod if player is empty
+			)			
+			{//rod_work to player				
 				ItemHandlerHelper.giveItemToPlayer(realPlayer, avatar.getInventory().take1());
 				avatar.markDirty();	
 			}else
-				if(avatar.getInventory().getType0().get(0)!=ItemStackType.Types.NONE && !rodWorkOnPlayer) { //from avatar to player					
+				if(!avatarEmpy && !rodWorkOnPlayer) { //from avatar to player					
 					if (!wandOnPlayer) {
 						ItemHandlerHelper.giveItemToPlayer(realPlayer, avatar.getInventory().take0());
 						return true;
@@ -194,7 +201,9 @@ public class ElvenAvatarBlock extends BlockBase implements ILexiconable,TileEnti
 						if (!dontGive)							
 						{																								
 							if (rodWorkOnPlayer) {
-								if (ItemStackType.isStackType( avatar.getInventory().getType0(),ItemStackType.Types.BREAK)) {
+								boolean itemBreak=ItemStackType.isStackType( avatar.getInventory().getType0(),ItemStackType.Types.BREAK);
+								boolean itemRodWill=ItemStackType.isStackType( avatar.getInventory().getType0(),ItemStackType.Types.ROD_WILL);
+								if (itemBreak||itemRodWill||avatarEmpy) {
 									avatar.getInventory().set1(stackOnRealPlayer.splitStack(1));
 									//rod_work to left hand , only if tools is break type, use type is always righclick, no need of this rod.		
 									avatar.resetBreak();

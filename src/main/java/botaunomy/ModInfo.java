@@ -19,7 +19,7 @@ public class ModInfo {
 	public static final String name = "Botaunomy";
 
 	/**This gets replaced with a value from build.properties during the gradle build. */
-	public static final String version = /*${gradle.mod_version}*/ "0.3.9";
+	public static final String version = /*${gradle.mod_version}*/ "0.3.9.2";
 
 	public static final String description = "A Botania addon focused on automation tweaks.";
 

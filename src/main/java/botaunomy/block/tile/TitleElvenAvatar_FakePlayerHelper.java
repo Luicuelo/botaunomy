@@ -44,7 +44,7 @@ public class TitleElvenAvatar_FakePlayerHelper {
 
 	private static final int MANA_PER_TOOLDAMAGE=30;
 	private BreakingData breakingData=new BreakingData();
-	private boolean isRodRighClick=false;
+	private boolean isRodClick=false;
 	private boolean blockRighClick=false;
 	private boolean toolUse=false;
 	private List<Entity> entitiesList=null; //try to use with all detected
@@ -213,7 +213,7 @@ public class TitleElvenAvatar_FakePlayerHelper {
 	
 	public boolean isBusy() {
 		boolean isBusy;
-		isBusy=breakingData.isBreaking()||isRodRighClick||blockRighClick||toolUse;
+		isBusy=breakingData.isBreaking()||isRodClick||blockRighClick||toolUse;
 		return (isBusy);
 	}
 	
@@ -602,7 +602,7 @@ public class TitleElvenAvatar_FakePlayerHelper {
 	}	
 
 	
-	public void rodRightClick(TileElvenAvatar avatar) {
+	public void rodClick(TileElvenAvatar avatar, boolean rithClick) {
 		if (!avatar.isEnabled()) {
 			return;
 		}
@@ -618,8 +618,8 @@ public class TitleElvenAvatar_FakePlayerHelper {
 			}			
 			BlockPos targetPos=getTargetPos();
 			if (targetPos!=null) {
-				isRodRighClick=true;
-				interactedWithBlock = interactBlock(avatar, avatarPlayer, targetPos);
+				isRodClick=true;
+				interactedWithBlock = interactBlock(avatar, avatarPlayer, targetPos,rithClick);
 				//interactedWithBlock=(avatarPlayer.get().interactionManager.processRightClick(avatarPlayer.get(), getWorld(), avatarPlayer.get().getHeldItemMainhand(), EnumHand.MAIN_HAND)== EnumActionResult.SUCCESS);
 				 
 				if(interactedWithBlock) {
@@ -631,7 +631,7 @@ public class TitleElvenAvatar_FakePlayerHelper {
 						new MessageMana(getPos(),avatar.getCurrentMana());
 					}
 				}
-				isRodRighClick=false;
+				isRodClick=false;
 			}
 		}
 	}
@@ -667,10 +667,10 @@ public class TitleElvenAvatar_FakePlayerHelper {
 	}
 
 	
-	private boolean interactBlock( //Always rightclick
+	private boolean interactBlock( 
 			TileElvenAvatar tileElvenAvatar,
 			WeakReference<FakePlayer> fakePlayer,
-			BlockPos targetPos)
+			BlockPos targetPos, boolean rightClick)
 	{
 		
 		 if(elvenFakePlayer.stackMainHandType().get(0)==ItemStackType.Types.BLOCK){
@@ -682,12 +682,21 @@ public class TitleElvenAvatar_FakePlayerHelper {
 		IBlockState iblockstate = getWorld().getBlockState(targetPos);
 		boolean blockIsAir = iblockstate.getMaterial() == Material.AIR;
 		if(!blockIsAir) {
-						
+			//ItemStack.EMPTY
 			World world = tileElvenAvatar.getWorld();
-			EnumActionResult r;
+			EnumActionResult r;	
+			if(rightClick)
+				r = fakePlayer.get().interactionManager.processRightClickBlock(fakePlayer.get(), world, ItemStack.EMPTY, EnumHand.MAIN_HAND, targetPos, EnumFacing.UP, .5F, .5F, .5F);
+			else
+			{
+				fakePlayer.get().interactionManager.onBlockClicked(targetPos,  EnumFacing.UP);
+				r = EnumActionResult.SUCCESS;
+			}
+				
+				//.processL(fakePlayer.get(), world, elvenFakePlayer.stackMainHand(), EnumHand.MAIN_HAND, targetPos, EnumFacing.UP, .5F, .5F, .5F);
 			
-			r = fakePlayer.get().interactionManager.processRightClickBlock(fakePlayer.get(), world, elvenFakePlayer.stackMainHand(), EnumHand.MAIN_HAND, targetPos, EnumFacing.UP, .5F, .5F, .5F);
-			if (r == EnumActionResult.SUCCESS) {
+			
+			if (r == EnumActionResult.SUCCESS||r == EnumActionResult.PASS) {
 				if(avatar.getWorld() instanceof WorldServer) {
 					new MessageMoveArm (getPos(),MessageMoveArm.SWING_ARM);
 				}

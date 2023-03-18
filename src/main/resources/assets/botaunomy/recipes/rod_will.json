@@ -11,11 +11,11 @@
 	"key": {
 		"D": {
 			"type": "forge:ore_dict",
-			"ore": "elvenDragonstone"
+			"ore": "ingotElvenElementium"
 		},
 		"E": {
 			"type": "forge:ore_dict",
-			"ore": "ingotElvenElementium"
+			"ore": "nuggetElvenElementium"
 		},
 		"T": {
 			"type": "forge:ore_dict",

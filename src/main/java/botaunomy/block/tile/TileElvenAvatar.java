@@ -333,14 +333,15 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 		
 		if(isAvatarTick()||(enabledBeforeRedstone!=enabled)) { //redstone signal forces change
 			if(getInventory().haveItem()) {
-				if (ItemStackType.isStackType( type0,ItemStackType.Types.ROD_WILL)) {						  
-						this.fakePlayerHelper.rodRightClick(this);
+				if (ItemStackType.isStackType( type0,ItemStackType.Types.ROD_WILL)) {										
+						boolean rightClick=!ItemStackType.isStackType( type1,ItemStackType.Types.ROD_WORK);
+						this.fakePlayerHelper.rodClick(this,rightClick);
 				}else 
 					if (!chargeMana(type0))	//its a tool					
 					{
 						if (ItemStackType.isStackType( type0,ItemStackType.Types.BREAK))
 							if(ItemStackType.isStackType( type1,ItemStackType.Types.ROD_WORK)) 
-								fakePlayerHelper.rightClickBlockWhithItem();//left click a block
+								fakePlayerHelper.rightClickBlockWhithItem();//right click a block
 							else								
 								fakePlayerHelper.beginBreak(); 						
 						if (ItemStackType.isStackType( type0,ItemStackType.Types.USE)||ItemStackType.isStackType( type0,ItemStackType.Types.SHEAR)||ItemStackType.isStackType( type0,ItemStackType.Types.KILL)) fakePlayerHelper.beginUse();
