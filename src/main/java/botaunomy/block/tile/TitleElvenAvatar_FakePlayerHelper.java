@@ -1,6 +1,7 @@
 package botaunomy.block.tile;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 import botaunomy.ItemStackType;
 import botaunomy.block.ElvenAvatarBlock;
@@ -26,6 +27,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.FakePlayer;
@@ -361,14 +364,40 @@ public class TitleElvenAvatar_FakePlayerHelper {
 		}
 		
 	}
+	
+	private void print(String t) { 
+	
+		World ws= getWorld();
+		if (ws.playerEntities.size() > 0)
+	    {
+	 	   
+	        String message = t;
+	        List<EntityPlayer> list= ws.playerEntities;
+	        List<EntityPlayer> listReal= new ArrayList<EntityPlayer>();
+	        
+	        int total=list.size();
+	        for(EntityPlayer p:list) {
+	     	   if (!(p instanceof FakePlayer)) listReal.add(p);                		                   	   
+	     	}	        
+	        TextComponentString text = new TextComponentString(message);
+	        text.getStyle().setColor(TextFormatting.GREEN);	        	       
+	        for(EntityPlayer p:listReal) {                	  
+	       	   p.sendMessage(text);
+	        }
+	    }
+	}
 
 	public void rightClickBlockWhithItem() {
 		
+
 		
 		if (!avatar.isEnabled())return;		
 		if (isBusy()) return;		
 		WeakReference<FakePlayer> avatarPlayer = getRefAndRetryInit();
 		if (avatarPlayer == null) return;
+		if (elvenFakePlayer.stackMainHand().isEmpty()) return;
+		
+		//print("Right Click");
 		
 		if(avatar.getCurrentMana() >= Config.rodManaCost) {
 	
@@ -379,21 +408,24 @@ public class TitleElvenAvatar_FakePlayerHelper {
 				interactedWithBlock = interactBlockWithItem(avatar, avatarPlayer, targetPos);
 			
 				if(interactedWithBlock) {
+					//print("Interacted");
 					avatar.recieveMana(-Config.rodManaCost);
 					checkManaIsEmpty();
 					emitResdstoneTimer.emitRedstone();
 					if(avatar.getWorld() instanceof WorldServer) {
+						new MessageMana(getPos(),avatar.getCurrentMana());
 						this.fakePlayerToInventory();
 						if (!elvenFakePlayer.stackMainHand().isEmpty())
 							new MessageMoveArm (getPos(),MessageMoveArm.RISE_ARM);
 						else {
+								//print("Empty");
 								new MessageMoveArm (getPos(),MessageMoveArm.DOWN_ARM);
 								this.inventoryToFakePlayer();
-							 }
-						new MessageMana(getPos(),avatar.getCurrentMana());
-						avatar.getWorld().markChunkDirty(targetPos, avatar);
+							 }						
+						avatar.getWorld().markChunkDirty(targetPos, avatar);		
 					}
-				}			
+				}
+								
 				blockRighClick=false;
 			}
 		}	

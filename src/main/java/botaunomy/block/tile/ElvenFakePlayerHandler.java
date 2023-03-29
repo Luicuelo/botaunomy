@@ -243,8 +243,9 @@ public class ElvenFakePlayerHandler  {
 	public void fakePlayerToInventory(TileElvenAvatar avatar ) {
 		 FakePlayer player=refMyFakePlayer.get();
 		 if (player==null) return;
+		 
 		 ItemStack stack=player.getHeldItem(EnumHand.MAIN_HAND);
-		 if (stack==null || stack== ItemStack.EMPTY) return;
+		 if (stack==null) return;
 		 
 		 if (stack.isEmpty()) avatar.getInventory().empty0();
 		 else 	avatar.getInventory().set0(stack);
