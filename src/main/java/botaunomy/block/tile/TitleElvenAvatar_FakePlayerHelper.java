@@ -388,44 +388,60 @@ public class TitleElvenAvatar_FakePlayerHelper {
 	}
 
 	public void rightClickBlockWhithItem() {
-		
-
-		
+			
 		if (!avatar.isEnabled())return;		
 		if (isBusy()) return;		
 		WeakReference<FakePlayer> avatarPlayer = getRefAndRetryInit();
 		if (avatarPlayer == null) return;
 		if (elvenFakePlayer.stackMainHand().isEmpty()) return;
-		
-		//print("Right Click");
+	
+		boolean isConsumedType=elvenFakePlayer.stackMainHandType().get(0)==ItemStackType.Types.CONSUME;
+		//if (isConsumedType) print("Right Click Consumed");
 		
 		if(avatar.getCurrentMana() >= Config.rodManaCost) {
 	
 			boolean interactedWithBlock = false;
 			BlockPos targetPos=getTargetPos();
+			
+			
 			if (targetPos!=null) {
 				blockRighClick=true;								
 				interactedWithBlock = interactBlockWithItem(avatar, avatarPlayer, targetPos);
-			
+
+				
 				if(interactedWithBlock) {
 					//print("Interacted");
-					avatar.recieveMana(-Config.rodManaCost);
-					checkManaIsEmpty();
-					emitResdstoneTimer.emitRedstone();
+					if (!isConsumedType) {
+						avatar.recieveMana(-Config.rodManaCost);
+						checkManaIsEmpty();
+						emitResdstoneTimer.emitRedstone();
+					}
+
 					if(avatar.getWorld() instanceof WorldServer) {
-						new MessageMana(getPos(),avatar.getCurrentMana());
+						if (!isConsumedType) new MessageMoveArm (getPos(),MessageMoveArm.SWING_ARM);
 						this.fakePlayerToInventory();
 						if (!elvenFakePlayer.stackMainHand().isEmpty())
-							new MessageMoveArm (getPos(),MessageMoveArm.RISE_ARM);
-						else {
-								//print("Empty");
+						{
+							//print("Not Empty");		
+							if (!isConsumedType) {	
+								new MessageMoveArm (getPos(),MessageMoveArm.RISE_ARM);
+							}
+						}
+						else {						
+								if (isConsumedType) {
+									avatar.recieveMana(-Config.rodManaCost);
+									checkManaIsEmpty();
+									emitResdstoneTimer.emitRedstone();
+								}								 
 								new MessageMoveArm (getPos(),MessageMoveArm.DOWN_ARM);
 								this.inventoryToFakePlayer();
-							 }						
-						avatar.getWorld().markChunkDirty(targetPos, avatar);		
+						}												
+						new MessageMana(getPos(),avatar.getCurrentMana());
+						avatar.getWorld().markChunkDirty(targetPos, avatar);
+						
 					}
-				}
-								
+					
+				}								
 				blockRighClick=false;
 			}
 		}	
@@ -757,9 +773,6 @@ public class TitleElvenAvatar_FakePlayerHelper {
 			EnumActionResult r;
 			r = fakePlayer.get().interactionManager.processRightClickBlock(fakePlayer.get(), world, elvenFakePlayer.stackMainHand(), EnumHand.MAIN_HAND, targetPos, EnumFacing.UP, .5F, .5F, .5F);
 			if (r == EnumActionResult.SUCCESS) {
-				if(avatar.getWorld() instanceof WorldServer) {
-					new MessageMoveArm (getPos(),MessageMoveArm.SWING_ARM);
-				}
 				return true; //Yay!
 			}
 		}

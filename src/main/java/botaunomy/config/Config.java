@@ -19,7 +19,8 @@ public class Config {
 	static final String CATEGORY_DIMENSION = "dimensions";
 
     // This values below you can access elsewhere in your mod:
-    private static String toolsCanBeUsedOnBlock = "pickaxe;hoe;shovel;hatchet;shears;dyePowder.white";
+    private static String toolsCanBeUsedOnBlock = "pickaxe;hoe;shovel;hatchet;shears";
+    private static String toolsCanBeConsumedOnBlock = "dyePowder.white;pestle";
     private static String toolsCanBeUsedWithEntities= "bucket;bowl";
     private static String toolsCanShearEntities= "shears";
     private static String toolsCanAtackEntities= "sword";
@@ -27,6 +28,7 @@ public class Config {
     private static String itemsJustRighClick="splash_potion";   
     
     public static String[] onBlockToolsList;
+    public static String[] onBlockConsumedToolsList;
     public static String[] entitiesToolsList;
     public static String[] entitiesShearsList;
     public static String[] entitiesAtacksList;
@@ -64,7 +66,9 @@ public class Config {
 	public static void splitStrings() {
         //is needed to check if had shear , by defaut returns always true.
         if (toolsCanBeUsedOnBlock.length()>0)
-        	onBlockToolsList = toolsCanBeUsedOnBlock.split(";");
+        	onBlockToolsList = toolsCanBeUsedOnBlock.split(";");              
+        if (toolsCanBeConsumedOnBlock.length()>0)
+        	onBlockConsumedToolsList = toolsCanBeConsumedOnBlock.split(";");              
         if (toolsCanBeUsedWithEntities.length()>0)
         	entitiesToolsList = toolsCanBeUsedWithEntities.split(";");
         if (toolsCanShearEntities.length()>0)
@@ -85,6 +89,7 @@ public class Config {
         disableFakePlayerAddedToWorld=cfg.getBoolean("FakePlayers_DisableAddedToWorld", CATEGORY_GENERAL, disableFakePlayerAddedToWorld, "if true fake player are no added to word, so cant activate spawners");
         
         toolsCanBeUsedOnBlock = cfg.getString("ToolsCanBeUsedOnBlock", CATEGORY_GENERAL, toolsCanBeUsedOnBlock, "Set name of tools , or part of name, than can be used on block, separated by ;");
+        toolsCanBeConsumedOnBlock = cfg.getString("ToolsCanBeConsumedOnBlock", CATEGORY_GENERAL, toolsCanBeConsumedOnBlock, "Set name of tools , or part of name, than can be used on block, but is consumed, separated by ;");        
         toolsCanBeUsedWithEntities = cfg.getString("ToolsCanBeUsedWithEntities", CATEGORY_GENERAL, toolsCanBeUsedWithEntities, "Set name of tools , or part of name, than can be used, separated by ;");
         toolsCanShearEntities = cfg.getString("ToolsCanBeShearEntities", CATEGORY_GENERAL, toolsCanShearEntities, "Set name of tools , or part of name, than can be used to shear, separated by ;");
         toolsCanAtackEntities = cfg.getString("ToolsCanAtackEntities", CATEGORY_GENERAL, toolsCanAtackEntities, "Set name of tools , or part of name, than can be used to attack, separated by ;");

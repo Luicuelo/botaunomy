@@ -20,6 +20,7 @@ public class ItemStackType {
     	BREAK,
     	SHEAR,
     	USE,
+    	CONSUME,
     	KILL,  
     	MANA,
     	JUSTRC,
@@ -53,6 +54,13 @@ public class ItemStackType {
 		if (i.getItem() instanceof RodItem && s.contains("rod_will")) sal.add(Types.ROD_WILL);
 		if (i.getItem() instanceof RodItem && s.contains("rod_work")) sal.add(Types.ROD_WORK);
 		 
+		if (Config.onBlockConsumedToolsList!=null)
+		for(int a = 0;a<Config.onBlockConsumedToolsList.length; a++) {
+			if (s.toLowerCase().contains(Config.onBlockConsumedToolsList[a].toLowerCase())) {
+				sal.add(Types.CONSUME);
+				break;
+			}
+		}
 		if (Config.onBlockToolsList!=null)
 		for(int a = 0;a<Config.onBlockToolsList.length; a++) {
 			if (s.toLowerCase().contains(Config.onBlockToolsList[a].toLowerCase())) {

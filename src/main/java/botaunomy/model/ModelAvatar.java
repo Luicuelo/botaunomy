@@ -39,7 +39,7 @@ public class ModelAvatar
 	private static boolean loadModelAvatar() {	
 		
 		for (int a=0; a<NPOINTS;a++) {
-			rndForPoints[a]=(float)Math.random();
+			rndForPoints[a]=(float)(Math.random()+0.1);
 		}
 
 		myModelBase.textureWidth = 32;
@@ -135,7 +135,7 @@ public class ModelAvatar
 				for (int b=0;b<NARC;b++)
 				for (int a=0; a<NPOINTS;a++) {
 					if (!avatar.haveMana()||!avatar.haveItem()||!avatar.isEnabled()) break;
-					else if (Math.random()>.35)
+					else //if (Math.random()>.35)
 						//points[b][a].render(scale*2F/3F);
 						renderParticles(5,points[b][a],scale*2F/3F);
 				}

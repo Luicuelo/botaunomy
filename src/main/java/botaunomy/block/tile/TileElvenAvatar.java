@@ -343,7 +343,9 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 							if(ItemStackType.isStackType( type1,ItemStackType.Types.ROD_WORK)) 
 								fakePlayerHelper.rightClickBlockWhithItem();//right click a block
 							else								
-								fakePlayerHelper.beginBreak(); 						
+								fakePlayerHelper.beginBreak(); 	
+						
+						if (ItemStackType.isStackType( type0,ItemStackType.Types.CONSUME)) fakePlayerHelper.rightClickBlockWhithItem();
 						if (ItemStackType.isStackType( type0,ItemStackType.Types.USE)||ItemStackType.isStackType( type0,ItemStackType.Types.SHEAR)||ItemStackType.isStackType( type0,ItemStackType.Types.KILL)) fakePlayerHelper.beginUse();
 						if (ItemStackType.isStackType( type0,ItemStackType.Types.JUSTRC)) fakePlayerHelper.justRightClick(this);														
 					}
