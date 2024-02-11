@@ -20,7 +20,7 @@ public class Config {
 
     // This values below you can access elsewhere in your mod:
     private static String toolsCanBeUsedOnBlock = "pickaxe;hoe;shovel;hatchet;shears";
-    private static String toolsCanBeConsumedOnBlock = "dyePowder.white;pestle";
+    private static String toolsCanBeConsumedOnBlock = "dyePowder.white;pestle;petal";
     private static String toolsCanBeUsedWithEntities= "bucket;bowl";
     private static String toolsCanShearEntities= "shears";
     private static String toolsCanAtackEntities= "sword";
@@ -62,7 +62,7 @@ public class Config {
 			} 
 		}
 	}
-
+ 
 	public static void splitStrings() {
         //is needed to check if had shear , by defaut returns always true.
         if (toolsCanBeUsedOnBlock.length()>0)
