@@ -2,6 +2,10 @@ package botaunomy.client.render;
 
 import java.util.HashMap;
 
+import org.apache.logging.log4j.Level;
+
+import net.minecraftforge.fml.common.FMLLog;
+
 public class SecuencesAvatar {
 
 	//only can be one secuence active
@@ -14,18 +18,31 @@ public class SecuencesAvatar {
 	}
 	
 	public  void init() {
-		Secuence riseArm=addSecuence("RiseArm", 50);
-		
+		Secuence riseArm=addSecuence("RiseArm", 50);		
 		riseArm.addRange("Arm", 0, -3.1416F*(3F/4F));
-		riseArm.addRange("tool", -70F+90F, -160F+90F);
-		riseArm.addRange("toolOffset", 2.1F , 0.9F-.35F);
+		riseArm.addRange("toolRotate", -70F+90F, -160F+90F);
+		riseArm.addRange("toolOffsetY", 2.1F , 0.9F-.35F);
 		riseArm.addRange("toolCorrection", 0F , (float)Math.PI+0.5F);
+		Secuence casterArm=addSecuence("CasterArm", 50);		
+		casterArm.addRange("Arm", 0, -(float)Math.PI*(3F/4F));
+		casterArm.addRange("toolRotate", 75F,-50F); //En grados, negativos hacia arriba
+		casterArm.addRange("toolOffsetY", 2.7F ,1.0F);//mas grande , mas abajo 1.1
+		casterArm.addRange("toolCorrection",0.05F , -0.6F);//mas pequeño mas a la derecha
+		casterArm.addRange("angle",0F ,(float) Math.PI);
+	
+		//casterArm.addRange("toolRotate", 73F,-50F); //En grados, negativos hacia arriba
+		//casterArm.addRange("toolOffsetY", 2.6F ,1.0F);//mas grande , mas abajo 1.1
+		//casterArm.addRange("toolCorrection",-0.1F , -0.6F);//mas pequeño mas a la derecha
+	
 		
 		Secuence downArm=addSecuence("DownArm", 50);
 		downArm.addRange("Arm",  -3.1416F*(3F/4F),0);
 		
 		SwinSecuence swingArm=new SwinSecuence ("swingArm", 25,riseArm );
+		SwinSecuence swingCaster=new SwinSecuence ("swingCaster", 100,casterArm );
 		addSecuence(swingArm);
+		addSecuence(swingCaster);
+		addSecuence(casterArm);
 			
 	}
 
@@ -58,7 +75,10 @@ public class SecuencesAvatar {
 	public void update(float pticks) {
 		if (!SecuenceActiveSecuenceName.equals("")) {;
 			Secuence secuence=secuences.get(SecuenceActiveSecuenceName.hashCode());
-			secuence.update(pticks);
+			if(secuence!=null)  {              
+				secuence.update(pticks);				
+			}
+			else FMLLog.log("Botaunomy", Level.INFO, "Secuence not found: "+SecuenceActiveSecuenceName);
 		}
 	}
 	

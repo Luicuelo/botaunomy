@@ -43,7 +43,7 @@ version = ModInfo.version,
 useMetadata = true,
 dependencies = "required-after:botania",
 acceptedMinecraftVersions = "[1.12,1.12.2]",
-acceptableRemoteVersions = "[0.3.9.4]",
+acceptableRemoteVersions = "[0.3.9.5]",
 guiFactory = ModInfo.modid+".config.ConfigGui")
 
 public class Botaunomy
@@ -73,8 +73,8 @@ public class Botaunomy
 	}
 
 	@Mod.EventHandler
-	public void postInit(FMLPostInitializationEvent e) {
-		proxy.postInit(e);
+	public void postInit(FMLPostInitializationEvent event) {
+		proxy.postInit(event);
 		MinecraftForge.EVENT_BUS.register(this);
 	}	
 	
@@ -84,6 +84,16 @@ public class Botaunomy
       //logger.info("initalise FMLServerStartingEvent :" + NAME);
       event.registerServerCommand(new HandCommand());
     }
+    
+    /*
+    @SubscribeEvent
+    public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        // Envía un mensaje de bienvenida a todos los jugadores
+       	TextComponentString text = new TextComponentString("Hi,"+event.player.getName()+": Thaumcraft is loaded "+ Config.getThaumcraftLoaded()+".");  
+		event.player.sendMessage(text);
+        //
+    }*/
+    
     
     @SubscribeEvent
     public void worldTickEvent(WorldTickEvent event) {

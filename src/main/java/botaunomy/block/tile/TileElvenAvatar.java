@@ -20,7 +20,6 @@ package botaunomy.block.tile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 import org.lwjgl.opengl.GL11;
 import com.google.common.base.Predicates;
 import botaunomy.ItemStackType;
@@ -53,6 +52,8 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import thaumcraft.api.crafting.IInfusionStabiliserExt;
 import vazkii.botania.api.internal.VanillaPacketDispatcher;
 import vazkii.botania.api.item.IAvatarTile;
 import vazkii.botania.api.item.IAvatarWieldable;
@@ -71,9 +72,63 @@ import vazkii.botania.common.core.helper.Vector3;
 import vazkii.botania.common.entity.EntitySpark;
 import vazkii.botania.common.item.ItemManaTablet;
 import vazkii.botania.common.item.ModItems;
+//import net.minecraftforge.fml.common.FMLLog;
 
-public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile , ITickable ,IElvenAvatarItemHadlerChangedListener,IManaPool,ISparkAttachable {
+public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile , ITickable ,IElvenAvatarItemHadlerChangedListener,IManaPool,ISparkAttachable,IInfusionStabiliserExt {
 
+	private  class PlayerOwner{
+		
+		private EntityPlayer _owner=null;
+		private String _ownerName="";
+		
+		public void setOwner(EntityPlayer owner) {
+			_owner=owner;
+			if (_owner==null) {
+				_ownerName="";
+				return;
+			}
+			_ownerName=_owner.getName();
+		}
+
+		
+		public void setOwnerByName(String ownerName) {
+			_ownerName=ownerName;
+			if (_ownerName.isEmpty()) {
+				_owner=null;
+				return;
+			}
+			if (world!=null && _owner==null) {
+	 			for (EntityPlayer entityPlayer : world.playerEntities) {
+				    if (entityPlayer.getName().equals(_ownerName)) {
+				        _owner = entityPlayer;
+				        break;
+				    }
+				}
+			}
+		}
+		
+		public String getName() {
+			return _ownerName;
+		}
+		
+		public EntityPlayer getOwner() {			
+			if (_owner!=null) return _owner;
+			if (_ownerName.isEmpty()) return null;
+			//tratamos de recuperarlo a partir del nombre			
+			setOwnerByName(_ownerName);
+			return _owner;
+		}		
+	}
+
+	public void setOwner(EntityPlayer owner) {
+		this.playerOwner.setOwner(owner);
+	}
+	
+	public EntityPlayer getOwner() {	
+		return this.playerOwner.getOwner();
+	}
+	
+	private PlayerOwner playerOwner=new PlayerOwner();
 	private static final int CRAFT_EFFECT_EVENT = 0;
 	private static final int CHARGE_EFFECT_EVENT = 1;
 
@@ -95,6 +150,7 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 	protected static final String TAG_WAND = "wamd";
 	protected static final String TAG_UUID = "uuid";
 	protected static final String TAG_SPECT = "spectator";
+	protected static final String TAG_OWNER = "owner";
 
 	protected boolean enabled=true;
 	private int ticksElapsed; //do not enter if starts disabled
@@ -214,7 +270,12 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 			if (inventory.haveItem()) {
 				//secuencesAvatar.ActivateSecuence("RiseArm");
 				if(!this.secuencesAvatar.isActive())
+				{
+					if (ItemStackType.isStackType(getInventory().cacheType0,ItemStackType.Types.CASTER))
+					new MessageMoveArm (getPos(),MessageMoveArm.CASTER_ARM);
+					else
 					new MessageMoveArm (getPos(),MessageMoveArm.RISE_ARM);
+				}
 				
 				boolean isValid= inventory.isItemValid0();
 				
@@ -223,7 +284,8 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 				}
 				
 			}else {
-								
+						
+				this.setOwner(null);
 				if (!resetBreak()) {
 					new MessageMoveArm (getPos(),MessageMoveArm.DOWN_ARM);
 				}
@@ -345,6 +407,9 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 							else								
 								fakePlayerHelper.beginBreak(); 	
 						
+						if (ItemStackType.isStackType( type0,ItemStackType.Types.CASTER)) {					
+							fakePlayerHelper.casterUse(this, this.getOwner());
+						}
 						if (ItemStackType.isStackType( type0,ItemStackType.Types.CONSUME)) fakePlayerHelper.rightClickBlockWhithItem();
 						if (ItemStackType.isStackType( type0,ItemStackType.Types.USE)||ItemStackType.isStackType( type0,ItemStackType.Types.SHEAR)||ItemStackType.isStackType( type0,ItemStackType.Types.KILL)) fakePlayerHelper.beginUse();
 						if (ItemStackType.isStackType( type0,ItemStackType.Types.JUSTRC)) fakePlayerHelper.justRightClick(this);														
@@ -518,6 +583,7 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 		 this.enabled=penabled;
 	}
 	
+	
 	@Override
 	public void readPacketNBT(NBTTagCompound par1nbtTagCompound) {
 		
@@ -529,15 +595,15 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 		playerIsSpectator=par1nbtTagCompound.getBoolean(TAG_SPECT);
 		try {
 			this.playerUUID= UUID.fromString(par1nbtTagCompound.getString(TAG_UUID));
-		}catch (Exception e) {}
-        
+		}catch (Exception e) {}        
+		String ownerName=par1nbtTagCompound.getString(TAG_OWNER);
+		playerOwner.setOwnerByName(ownerName);
+		
 		if (world!=null && world.isRemote && this.playerUUID!=null)      	
         	this.fakePlayerHelper.elvenFakePlayer.initClient( world,  pos, this );     
         else
         	setPlayerSpectator(playerIsSpectator);
 		this.fakePlayerHelper.readPacketNBT(par1nbtTagCompound);
-		
-		
 	}
 	
 	@Override
@@ -548,11 +614,13 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 		par1nbtTagCompound.setInteger(TAG_MANA, manaAvatar);
 		par1nbtTagCompound.setBoolean(TAG_WAND, wandManaToTablet);
 		par1nbtTagCompound.setBoolean(TAG_SPECT, playerIsSpectator);
+		par1nbtTagCompound.setString(TAG_OWNER, playerOwner.getName());
 		
 		if (this.playerUUID!=null)
 			par1nbtTagCompound.setString(TAG_UUID, this.playerUUID.toString());
 		this.fakePlayerHelper.writePacketNBT(par1nbtTagCompound);
 	}
+
 
 
 
@@ -623,8 +691,7 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 		private ArrayList<ItemStackType.Types>  cacheType1;
 		private ItemStack [] lastTryToInsert=new ItemStack [2] ;
 		private List <IElvenAvatarItemHadlerChangedListener> listIInventoryChangedListener= new ArrayList<IElvenAvatarItemHadlerChangedListener> ();  
-    	
-		
+    					
 		public <T extends TileSimpleInventory & IElvenAvatarItemHadlerChangedListener > ElvenAvatarItemHadler(T inv, boolean allowWrite) {
 			super(inv, allowWrite);
 			if (super.getStackInSlot(0)==null) super.setStackInSlot(0, ItemStack.EMPTY);
@@ -711,10 +778,9 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 						allow=true;	
 				}
 				//to transfer mana, only can extract if tablet is full or empty
-			}				 			
-			else allow=true;	
-			
-			
+			}		
+			//if (slot==0 && ItemStackType.isStackType(getType0(),ItemStackType.Types.ROD_WILL)) {
+			else  allow=true;				
 			if (allow)return super.extractItem(slot, amount, simulate);
 				else return ItemStack.EMPTY;
 			
@@ -785,7 +851,7 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 				
 		public ItemStack take0() {
 			ItemStack t=getStackInSlot(0);
-			setStackInSlot(0, ItemStack.EMPTY);
+			setStackInSlot(0, ItemStack.EMPTY);	
 			return t;			
 		}
 		
@@ -884,5 +950,27 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 			default: return super.receiveClientEvent(event, param);
 		}
 	}
+
+	@Override
+	public boolean canStabaliseInfusion(World world, BlockPos pos) {
+		return true;
+	}
+
+	@Override
+	public float getStabilizationAmount(World world, BlockPos pos) {
+		return 0.8F;
+	}
+	
+	@Override
+	public boolean hasSymmetryPenalty(World world, BlockPos pos1, BlockPos pos2) { 
+		return true; 
+	}
+	
+	@Override
+	public float getSymmetryPenalty(World world, BlockPos pos) { 
+		return 0; 
+	}
+
+
 	
 }

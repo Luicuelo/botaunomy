@@ -55,6 +55,7 @@ public class ElvenAvatarBlock extends BlockBase implements ILexiconable,TileEnti
 	private static final AxisAlignedBB Z_AABB = new AxisAlignedBB(.21875, 0, .3125, 1-.21875, 17/16.0, 1-.3125);
 	public static final PropertyBool POWERED = PropertyBool.create("powered");
 
+
 	public ElvenAvatarBlock() {
 		super(Material.IRON, NAME);
 		setHardness(2.0F);
@@ -64,6 +65,7 @@ public class ElvenAvatarBlock extends BlockBase implements ILexiconable,TileEnti
 		this.setUnlocalizedName(ModInfo.modid + "." + NAME);		
 	}
 
+	
 	
 	@Override
 	public boolean canProvidePower(IBlockState state) {
@@ -202,7 +204,7 @@ public class ElvenAvatarBlock extends BlockBase implements ILexiconable,TileEnti
 						{																								
 							if (rodWorkOnPlayer) {
 								boolean itemBreak=ItemStackType.isStackType( avatar.getInventory().getType0(),ItemStackType.Types.BREAK);
-								boolean itemRodWill=ItemStackType.isStackType( avatar.getInventory().getType0(),ItemStackType.Types.ROD_WILL);
+								boolean itemRodWill=ItemStackType.isStackType( avatar.getInventory().getType0(),ItemStackType.Types.ROD_WILL);																
 								if (itemBreak||itemRodWill||avatarEmpy) {
 									avatar.getInventory().set1(stackOnRealPlayer.splitStack(1));
 									//rod_work to left hand , only if tools is break type, use type is always righclick, no need of this rod.		
@@ -210,7 +212,9 @@ public class ElvenAvatarBlock extends BlockBase implements ILexiconable,TileEnti
 									avatar.markDirty();
 								}else return false;
 							}
-							else {								
+							else {
+								boolean itemCaster=ItemStackType.isStackType(stackOnRealPlayerType,ItemStackType.Types.CASTER);
+								if (itemCaster) avatar.setOwner(realPlayer);
 								avatar.getInventory().set0(stackOnRealPlayer.splitStack(1));
 								//now  event do this
 								//avatar.secuencesAvatar.ActivateSecuence("RiseArm");		

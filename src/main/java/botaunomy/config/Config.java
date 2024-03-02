@@ -25,7 +25,8 @@ public class Config {
     private static String toolsCanShearEntities= "shears";
     private static String toolsCanAtackEntities= "sword";
     private static String itemsContainMana= "manatablet;capacitor";
-    private static String itemsJustRighClick="splash_potion";   
+    private static String itemsJustRighClick="splash_potion";
+    private static String itemsThaumcraftCaster="caster";   
     
     public static String[] onBlockToolsList;
     public static String[] onBlockConsumedToolsList;
@@ -34,15 +35,31 @@ public class Config {
     public static String[] entitiesAtacksList;
     public static String[] itemsContainManaList;
     public static String[] itemsJustRighClickList;
+    public static String[] itemsThaumcraftCasterList;
     
     public static int useManaCost=160;
     public static int rodManaCost=160;
     public static int breakManaCost=160;
+    public static int casterManaCost=320;
     public static int mobSpawnerCostPertick=2;
     
     public static boolean fakePlayersAreAsleep=true;
     public static boolean asleepMessage=false;
     public static boolean disableFakePlayerAddedToWorld=false;
+    
+    
+    private static boolean thaumcraftLoaded;
+    
+    public static boolean getThaumcraftLoaded() {
+    	return thaumcraftLoaded;    
+    }
+    public static void setThaumcraftLoaded(boolean b) {
+    	thaumcraftLoaded=b;
+    	if (!b)itemsThaumcraftCasterList=new String[0];    	    	        	
+    	else  if (itemsThaumcraftCaster.length()>0)
+        	itemsThaumcraftCasterList = itemsThaumcraftCaster.split(";");
+    }
+    
     
     // Call this from CommonProxy.preInit(). It will create our config if it doesn't
     // exist yet and read the values if it does exist.
@@ -78,7 +95,9 @@ public class Config {
         if (itemsContainMana.length()>0)
         	itemsContainManaList = itemsContainMana.split(";");
         if (itemsJustRighClick.length()>0)
-        	itemsJustRighClickList = itemsJustRighClick.split(";");
+        	itemsJustRighClickList = itemsJustRighClick.split(";");        
+        if (itemsThaumcraftCaster.length()>0 && thaumcraftLoaded)
+        	itemsThaumcraftCasterList = itemsThaumcraftCaster.split(";");
 		
 	}
     public static void initGeneralConfig(Configuration cfg) {
@@ -95,10 +114,13 @@ public class Config {
         toolsCanAtackEntities = cfg.getString("ToolsCanAtackEntities", CATEGORY_GENERAL, toolsCanAtackEntities, "Set name of tools , or part of name, than can be used to attack, separated by ;");
         itemsContainMana = cfg.getString("ItemContainMana", CATEGORY_GENERAL, itemsContainMana, "Set name of items , or part of name, than can contain mana, separated by ;");
         itemsJustRighClick = cfg.getString("itemsJustRighClick", CATEGORY_GENERAL, itemsJustRighClick, "Set name of items , or part of name, right click with no block or entity");
+        itemsThaumcraftCaster = cfg.getString("itemsThaumcraftCaster", CATEGORY_GENERAL, itemsThaumcraftCaster, "Thaumcraft caster.");
+        
         
         useManaCost=cfg.getInt("Cost_UseManaCost", CATEGORY_GENERAL, useManaCost, 50, 1000, "Mana cost each time avatar uses a tool on entity");
         rodManaCost=cfg.getInt("Cost_RodManaCost", CATEGORY_GENERAL, rodManaCost, 50, 1000, "Mana cost each time avatar uses rod on a block, same for just use a item");
         breakManaCost=cfg.getInt("Cost_BreakManaCost", CATEGORY_GENERAL, breakManaCost, 50, 1000, "Mana cost each time avatar try to break a block");        
+        casterManaCost=cfg.getInt("Cost_CasterManaCost", CATEGORY_GENERAL, casterManaCost, 50, 1000, "Mana cost each time avatar craft a thaumcraft infusion");
         mobSpawnerCostPertick=cfg.getInt("Cost_MobSpawnerCostPertick", CATEGORY_GENERAL, mobSpawnerCostPertick, 1, 10, "Mana cost per tick for ativate mob spawners");
 
         splitStrings();

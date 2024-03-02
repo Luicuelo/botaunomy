@@ -17,6 +17,7 @@ import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -59,7 +60,7 @@ public abstract class CommonProxy {
 	 * @param e
 	 */
 	public void postInit(FMLPostInitializationEvent e) {
-
+		Config.setThaumcraftLoaded(Loader.isModLoaded("thaumcraft"));
 	}
 
 	@SubscribeEvent

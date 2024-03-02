@@ -35,7 +35,7 @@ public class ClientProxy extends CommonProxy {
 
 	@Override
 	public void postInit(FMLPostInitializationEvent event) {
-		super.postInit(event);
+		super.postInit(event);		
 	}
 
 	@SideOnly(Side.CLIENT)

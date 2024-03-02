@@ -101,6 +101,6 @@ public class Registry {
 			items.get(i).registerModels();
 		}
 	}
-		
+	
 
 }

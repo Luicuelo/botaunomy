@@ -1,8 +1,12 @@
 package botaunomy.block.tile;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.logging.log4j.Level;
+
 import botaunomy.ItemStackType;
 import botaunomy.block.ElvenAvatarBlock;
 import botaunomy.config.Config;
@@ -21,6 +25,7 @@ import net.minecraft.init.Enchantments;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
@@ -32,6 +37,8 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.fml.common.FMLLog;
+import thaumcraft.api.casters.IInteractWithCaster;
 import vazkii.botania.api.mana.IManaUsingItem;
 import vazkii.botania.common.item.equipment.tool.ToolCommons;
 
@@ -47,6 +54,8 @@ public class TitleElvenAvatar_FakePlayerHelper {
 
 	private static final int MANA_PER_TOOLDAMAGE=30;
 	private BreakingData breakingData=new BreakingData();
+	
+	private boolean alreadyCrafting;
 	private boolean isRodClick=false;
 	private boolean blockRighClick=false;
 	private boolean toolUse=false;
@@ -789,7 +798,99 @@ public class TitleElvenAvatar_FakePlayerHelper {
 		getWorld().spawnEntity(entityItem);
 		
 	}
+	
+	
+	@SuppressWarnings("deprecation")
+	public void casterUse(TileElvenAvatar avatar,EntityPlayer cachePlayer ) {
 		
+		if (cachePlayer==null) return;
+		
+		String nombre=cachePlayer.getName();		
+		//FMLLog.log("Botaunomy", Level.INFO, "Usuario Caster: "+nombre);
+		
+		
+		if (!avatar.isEnabled()) return;
+		if (isBusy()) return;				
+		if(avatar.getCurrentMana() < Config.casterManaCost) return;
+		
+		BlockPos pos=getTargetPos();
+		World world=avatar.getWorld();
+		
+		//IBlockState bs=world.getBlockState(pos);
+		//Block block = bs.getBlock();		
+		//boolean blockCanInteract=(block instanceof IInteractWithCaster);		
+		
+		TileEntity tile = world.getTileEntity(pos);
+		boolean tileCanInteract= (tile != null && tile instanceof IInteractWithCaster);
+		
+		
+		//FMLLog.log("Botaunomy", Level.INFO, "CasterUse Block:"+blockCanInteract+" Tile:"+tileCanInteract);
+
+		
+		if (tileCanInteract) {
+							
+			WeakReference<FakePlayer> avatarPlayer = getRefAndRetryInit();
+			if (avatarPlayer == null) {
+				return;
+			}			
+			ItemStack caster=avatarPlayer.get().getHeldItemMainhand();
+			
+			boolean r;				
+			IInteractWithCaster target=(IInteractWithCaster) tile;
+			//no devuelve true cuando comienza el crafting
+			r=target.onCasterRightClick(world, caster, cachePlayer, pos, EnumFacing.UP, EnumHand.MAIN_HAND);
+			
+			String clase=target.getClass().getName();
+			//FMLLog.log("Botaunomy", Level.INFO, "Clase: "+clase);
+			
+			boolean isInfusionMatrix=clase.equals("thaumcraft.common.tiles.crafting.TileInfusionMatrix");
+			boolean isCrafting=false;	
+			
+			if (r||isInfusionMatrix) {			
+				if(isInfusionMatrix) {
+						 try {
+							Class<?> infusionMatrixClass = Class.forName(clase);
+							Object infusionMatrixInstance = infusionMatrixClass.cast(target);
+							Field field;
+							try {
+								field = infusionMatrixClass.getDeclaredField("crafting");
+								isCrafting = (boolean) field.get(infusionMatrixInstance);
+							} catch (NoSuchFieldException | SecurityException e) {
+								//FMLLog.log("Botaunomy", Level.INFO, "Cant instance TileInfusionMatrix");
+							} catch (IllegalArgumentException e) {
+							} catch (IllegalAccessException e) {
+								//FMLLog.log("Botaunomy", Level.INFO, "Cant get crafting memeber");
+							}						
+						} catch (ClassNotFoundException e){
+							//FMLLog.log("Botaunomy", Level.INFO, "Cant cast TileInfusionMatrix");
+							//FMLLog.log("Botaunomy", Level.INFO, e.getMessage());
+						}
+				 }
+				
+				//FMLLog.log("Botaunomy", Level.INFO, "TileInfusionMatrix----TileInfusionMatrix");
+				if (r||isCrafting&&!alreadyCrafting) {					
+					//FMLLog.log("Botaunomy", Level.INFO, "-----------CRAFTING--------------");
+					alreadyCrafting=true;
+					if(world instanceof WorldServer) {
+						new MessageMoveArm (getPos(),MessageMoveArm.SWINGC_ARM);
+					}
+				}		
+				
+				//Craft ends.
+				if(r||!isCrafting&&alreadyCrafting) {
+					alreadyCrafting=false;
+					avatar.recieveMana(-Config.casterManaCost);
+					this.fakePlayerToInventory();
+					checkManaIsEmpty();
+					emitResdstoneTimer.emitRedstone();
+					if(world instanceof WorldServer) {
+						new MessageMana(getPos(),avatar.getCurrentMana());						
+					}
+					new MessageMoveArm (getPos(),MessageMoveArm.CASTER_ARM);
+				}
+			}	
+		}
+	}
 }
 
 

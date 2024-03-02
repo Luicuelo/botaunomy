@@ -127,6 +127,9 @@ public class ModelAvatar
 	         ModelAvatar.head.render(scale);
 	         ModelAvatar.botton.render(scale);
 			
+	         
+	       
+	         
 			if (avatar!=null && avatar.isEnabled() && renderPoints ) {
 				
 				//float difscale=((float)(Math.random()*scale)/10F)-(scale/10F);
@@ -135,9 +138,9 @@ public class ModelAvatar
 				for (int b=0;b<NARC;b++)
 				for (int a=0; a<NPOINTS;a++) {
 					if (!avatar.haveMana()||!avatar.haveItem()||!avatar.isEnabled()) break;
-					else //if (Math.random()>.35)
-						//points[b][a].render(scale*2F/3F);
-						renderParticles(5,points[b][a],scale*2F/3F);
+					else //if (Math.random()>.35)						
+						renderParticles(5,points[b][a],scale*2F/3F);			
+
 				}
 			}			
 	}
@@ -151,14 +154,23 @@ public class ModelAvatar
 			//GlStateManager.alphaFunc(516, 0.1F);     		    	
 			//GlStateManager.shadeModel(GL11.GL_SMOOTH);
 			GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+			
+			//GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA); 
+		
 			//GlStateManager.depthMask(false);
 			//GlStateManager.disableTexture2D();
 			//GlStateManager.disableCull();
 	
+			
+
                  try
                         {
-                            //particle.renderParticle(bufferbuilder, entityIn, partialTicks, f, f4, f1, f2, f3);
-                        	point.render(scale);
+                            //particle.renderParticle(bufferbuilder, entityIn, partialTicks, f, f4, f1, f2, f3);                        	
+                	 		point.render(scale);
+                        	
+						 	//net.minecraft.client.model.ModelBox cube = point.cubeList.get(0);
+							//RenderGlobal.renderFilledBox(cube.posX1/10F, cube.posY1/10F+1, cube.posZ1/10F, cube.posX2/10F, cube.posY2/10F+1, cube.posZ2/10F, 0.5F, 0.1F, 0.1F, .7F);
+                        	
                         }            
                         catch (Throwable throwable){}
 	        

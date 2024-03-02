@@ -20,7 +20,9 @@ public class MessageMoveArm implements IMessage  {
 	
 	public static final int SWING_ARM=1;
 	public static final int RISE_ARM=2;
-	public static final int DOWN_ARM=3;  
+	public static final int DOWN_ARM=3;
+	public static final int CASTER_ARM=4;
+	public static final int SWINGC_ARM=5;  
 	
 	private BlockPos blockPos;
 	private int nSecuencia;
@@ -66,6 +68,11 @@ public class MessageMoveArm implements IMessage  {
 					 avatar.secuencesAvatar.ActivateSecuence("RiseArm");
 				 if (nSecuencia==DOWN_ARM)
 					 avatar.secuencesAvatar.ActivateSecuence("DownArm");
+				 if (nSecuencia==CASTER_ARM)
+					 avatar.secuencesAvatar.ActivateSecuence("CasterArm");
+				 if (nSecuencia==SWINGC_ARM)
+					 avatar.secuencesAvatar.ActivateSecuence("swingCaster");
+
  
 			 }		
 	        return null;

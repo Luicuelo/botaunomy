@@ -7,11 +7,14 @@
  ******************************************************************************/
 package botaunomy.client.render;
 
+import java.util.ArrayList;
+
 import javax.annotation.Nullable;
 
 
 import org.lwjgl.opengl.GL11;
 
+import botaunomy.ItemStackType;
 import botaunomy.ModBlocks;
 import botaunomy.ModResources;
 import botaunomy.block.tile.TileElvenAvatar;
@@ -146,19 +149,40 @@ public class RenderTileElvenAvatar extends TileEntitySpecialRenderer<TileElvenAv
 		GlStateManager.scale(s, s, s);
 				
 		if (righthand) {
-			if (!avatar.secuencesAvatar.isActive()) {					
-				float corr=(float)Math.sin(avatar.secuencesAvatar.getEndValue("RiseArm","toolCorrection"));					
-				GlStateManager.translate(-0.5F,avatar.secuencesAvatar.getEndValue("RiseArm","toolOffset"), -0.4f -(corr*0.3));
-				GlStateManager.rotate(avatar.secuencesAvatar.getEndValue("RiseArm","tool"), 1, 0, 0);										
+			boolean isCaster=ItemStackType.isStackType(ItemStackType.getTypeTool(stack),ItemStackType.Types.CASTER);			
+			String secuence="RiseArm";
+			if (isCaster) secuence="CasterArm";
+			
+			if (!avatar.secuencesAvatar.isActive()) {
+				
+				float toolCorrection=avatar.secuencesAvatar.getEndValue(secuence,"toolCorrection");				
+				float corr=(float)Math.sin(toolCorrection);		
+				float corr2=-0.4f-(corr*0.3F);
+				if (isCaster)corr2=toolCorrection;				
+				GlStateManager.translate(-0.5F,avatar.secuencesAvatar.getEndValue(secuence,"toolOffsetY"), corr2);
+				GlStateManager.rotate(avatar.secuencesAvatar.getEndValue(secuence,"toolRotate"), 1, 0, 0);										
 			}else {
-							
-				float corr=0;
-				if (avatar.secuencesAvatar.elementExists("toolCorrection"))  
-					 corr=(float)Math.sin(avatar.secuencesAvatar.getValue("toolCorrection"));						
-				if (avatar.secuencesAvatar.elementExists("toolOffset"))  
-					GlStateManager.translate(-0.5F,avatar.secuencesAvatar.getValue("toolOffset"), -0.4f -(corr*0.3));				
-				if (avatar.secuencesAvatar.elementExists("tool"))  
-					GlStateManager.rotate(avatar.secuencesAvatar.getValue("tool"), 1, 0, 0);
+					
+				float toolCorrection=0;			
+				float corr=0;				
+				if (avatar.secuencesAvatar.elementExists("toolCorrection")) {
+					 toolCorrection=avatar.secuencesAvatar.getValue("toolCorrection");		
+					 corr=(float)Math.sin(toolCorrection);
+				}
+				if (avatar.secuencesAvatar.elementExists("toolOffsetY"))  {
+					float corr2=-0.6f-(corr*0.3F);
+					float corr3=0;
+					float angle;
+					if (isCaster) {
+						angle=avatar.secuencesAvatar.getValue("angle");
+						corr2=toolCorrection-(float)Math.sin(angle)*.5F;
+						corr3=(float)Math.sin(angle)*.15F;
+					}
+					GlStateManager.translate(-0.5F,avatar.secuencesAvatar.getValue("toolOffsetY")+corr3, corr2);
+				}
+				if (avatar.secuencesAvatar.elementExists("toolRotate"))  {
+					GlStateManager.rotate(avatar.secuencesAvatar.getValue("toolRotate")-corr, 1, 0, 0);
+				}
 			}
 		}else		
 		{
@@ -169,6 +193,7 @@ public class RenderTileElvenAvatar extends TileEntitySpecialRenderer<TileElvenAv
 					
 		}
 		
+				
 		Minecraft.getMinecraft().getRenderItem().renderItem(stack, ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND);
 		GlStateManager.popMatrix();		
 		GlStateManager.disableAlpha();

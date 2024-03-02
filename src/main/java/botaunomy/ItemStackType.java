@@ -1,6 +1,7 @@
 package botaunomy;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import botaunomy.config.Config;
 import botaunomy.item.RodItem;
@@ -14,7 +15,7 @@ import vazkii.botania.api.mana.IManaItem;
 
 public class ItemStackType {
 
-    
+    private static HashMap<String, ArrayList<ItemStackType.Types>> dictionary = new HashMap<>(); //Cache para buscar más rápido
 	public static enum Types {
 		NONE,
     	BREAK,
@@ -28,6 +29,7 @@ public class ItemStackType {
     	ROD_WORK,
     	ROD_AVATAR,
     	EYE,
+    	CASTER,
     	BLOCK
       }
     
@@ -41,15 +43,21 @@ public class ItemStackType {
 		}
 		return false;
 	}
-	
+		
 	public static  ArrayList<ItemStackType.Types>  getTypeTool(ItemStack i) {
-
-		String s=i.getUnlocalizedName().toLowerCase();
+	
 		ArrayList<Types> sal=new ArrayList<ItemStackType.Types> ();
 
-
+		if(i.isEmpty()) {
+			sal.add(Types.NONE);
+			return sal;
+		}
 		
-		if(i.isEmpty()) sal.add(Types.NONE);
+		String s=i.getUnlocalizedName().toLowerCase();
+		
+		if (dictionary.containsKey(s)) {
+			return  dictionary.get(s.toLowerCase());
+		}
 		
 		if (i.getItem() instanceof RodItem && s.contains("rod_will")) sal.add(Types.ROD_WILL);
 		if (i.getItem() instanceof RodItem && s.contains("rod_work")) sal.add(Types.ROD_WORK);
@@ -89,13 +97,22 @@ public class ItemStackType {
 				break;
 			}
 		}
+		
+		
 		if (Config.itemsJustRighClickList!=null)
 		for(int a = 0;a<Config.itemsJustRighClickList.length; a++) {
 			if (s.toLowerCase().contains(Config.itemsJustRighClickList[a].toLowerCase())) {
 				sal.add(Types.JUSTRC);
 				break;
 			}
-		}	
+		}			
+		if (Config.itemsThaumcraftCasterList!=null)
+		for(int a = 0;a<Config.itemsThaumcraftCasterList.length; a++) {
+			if (s.toLowerCase().contains(Config.itemsThaumcraftCasterList[a].toLowerCase())) {
+				sal.add(Types.CASTER);
+				break;
+			}
+		}				
 		if (Config.itemsContainManaList!=null)
 		for(int a = 0;a<Config.itemsContainManaList.length; a++) {
 				Item item=i.getItem();
@@ -118,6 +135,8 @@ public class ItemStackType {
 		
 		if (sal.size()==0) sal.add(Types.NONE);
 		
+		
+        dictionary.put(s, sal); //guardamos en el cache.		
 		return sal;
 	}
 
