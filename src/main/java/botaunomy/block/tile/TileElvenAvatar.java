@@ -160,7 +160,7 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 	public static int nAvatarServer;
 	public static int nAvatarClient;
 	private TitleElvenAvatar_FakePlayerHelper fakePlayerHelper;
-	private boolean wandManaToTablet=false;
+	public boolean wandManaToTablet=false;
 	private UUID playerUUID=null;
 	public boolean playerIsSpectator=false;
 	
@@ -203,24 +203,26 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 		return null;
 	}
 	
-	private boolean insertInChest (ItemStack[] refItemStackIn, TileEntityChest chest) {
 
-		 ItemStack itemStack=null;
-		 ItemStack itemStackIn=refItemStackIn[0];
+	
+	private boolean insertInChest (ItemStack itemStackIn, TileEntityChest chest) {
+
+		 ItemStack itemStack=null;		 
+		 if(itemStackIn==ItemStack.EMPTY) return false;
+		 int itemStackInMetadata=itemStackIn.getMetadata();
 		 
 		 for (int i = 0; i < chest.getSizeInventory(); ++i) {		     
 			 itemStack = chest.getStackInSlot(i);
 			 if (itemStack!=null && itemStack!=ItemStack.EMPTY) {
 				 int quantity=itemStack.getCount();
 				 int maxQuantity=itemStack.getMaxStackSize();
-			 
-				 if (itemStack.getItem().equals(itemStackIn.getItem())) {
-					 if (quantity<chest.getInventoryStackLimit()&& quantity<maxQuantity) {
+						 
+				 if (quantity<chest.getInventoryStackLimit()&& quantity<maxQuantity) {
+					 if (itemStack.getItem().equals(itemStackIn.getItem())&& itemStack.getMetadata()==itemStackInMetadata) {
 						 itemStack.setCount(quantity+1);
-						 if (itemStackIn.getCount()-1<=0) refItemStackIn[0]=ItemStack.EMPTY;
+						 if (itemStackIn.getCount()-1<=0) itemStackIn.setCount(0);
 						 else {
 							 itemStackIn.shrink(1);
-							 refItemStackIn[0]=itemStackIn;
 						 }
 						 chest.setInventorySlotContents(i, itemStack);
 						 return true;
@@ -229,16 +231,17 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 			 }
 		 }
 		 
+		 //if (ItemStack.areItemStacksEqual(titemStack, titemStackIn)) {//compara tambien los nameTags
+		 
 		 for (int i = 0; i < chest.getSizeInventory(); ++i) {	
 			 itemStack = chest.getStackInSlot(i);
 			 if (itemStack==null || itemStack==ItemStack.EMPTY) {
 				 itemStack=itemStackIn.copy();
 				 itemStack.setCount(1);
 				 chest.setInventorySlotContents(i, itemStack);
-				 if (itemStackIn.getCount()-1<=0) refItemStackIn[0]=ItemStack.EMPTY;
+				 if (itemStackIn.getCount()-1<=0) itemStackIn.setCount(0);
 				 else{
 					 itemStackIn.shrink(1);
-					 refItemStackIn[0]=itemStackIn;
 				 }
 				 return true;
 			 }
@@ -250,13 +253,17 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 	private  void  dropOrInsert(ElvenAvatarItemHadler inventory) {
 		boolean insertado=false;
 		TileEntityChest chest= this.findChest();	
+		
 		ItemStack itemStack=inventory.get0();
-		ItemStack[] refItemStack=new ItemStack[1];
-		refItemStack[0]=itemStack;
-		if (chest!=null) insertado=this.insertInChest(refItemStack, chest);
-		if (insertado) 
-			inventory.set0(refItemStack[0]);
-		else
+		
+		if (chest!=null) insertado=this.insertInChest(itemStack, chest);
+		if (insertado) {			
+			if(itemStack.isEmpty()) itemStack=ItemStack.EMPTY;
+			//no es lo mismo estar vacio que ser el objeto vacio.
+			inventory.set0(itemStack);		
+		}
+		if (!insertado) 
+			//inventory.set0(itemStack);
 			this.fakePlayerHelper.dropItem(inventory.take0());
 	}
 	
@@ -433,7 +440,8 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 	
 	private boolean chargeMana(ArrayList<Types> type0) {
 	
-		if (ItemStackType.isStackType( type0,ItemStackType.Types.MANA))  {			
+		if (ItemStackType.isStackType( type0,ItemStackType.Types.MANA))  {		
+			
 			ItemStack stackMana=getInventory().get0();
 			Item itemmana=stackMana.getItem();
 			EntityItem entityItemMana= new EntityItem(getWorld(),pos.getX(), pos.getY(), pos.getZ(), stackMana);
@@ -443,6 +451,8 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 				stackMana=getInventory().get0();
 				if (stackMana.isEmpty()) {
 					getInventory().take0();
+					
+					 detectarItemsCercanos(getWorld(),pos.getX(), pos.getY(), pos.getZ());
 				}
 				
 			}else 
@@ -454,6 +464,31 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 		}
 		return false;
 	}
+	public void detectarItemsCercanos(World world, double x, double y, double z)  {
+		if(world.isRemote) return;
+		
+	    int radio = 1; // Un bloque alrededor del jugador
+	    AxisAlignedBB areaBusqueda = new AxisAlignedBB(x - radio, y - radio, z - radio, x + radio, y + radio, z + radio);
+	    List<String> nombresStacks = new ArrayList<>();
+	    List<Entity> entidadesCercanas = world.getEntitiesWithinAABBExcludingEntity(null,areaBusqueda );
+
+	    for (Entity entidad : entidadesCercanas) {
+	        if (entidad instanceof EntityItem  && !((EntityItem)entidad).isDead ) {	    
+	            ItemStack stack = ((EntityItem) entidad).getItem();
+	            Item itemmana=stack.getItem();
+	            if (itemmana instanceof IManaDissolvable) {
+		            //System.out.println("Item cercano: " +  stack.getDisplayName());
+	            	//Guarda en un chest cercano las entidades tiradas de tipo IManaDissolvable
+	            		            	
+	            	TileEntityChest chest= this.findChest();
+	            	boolean insertado=false;
+	        		if (chest!=null) insertado=this.insertInChest(stack, chest);
+	        		if (insertado) world.removeEntity(entidad);
+	            }
+	        }
+	    }
+	}
+	
 	
     private void tabletToAvatar	( ItemStack stack) {
 	   if(getWorld().isRemote) return;

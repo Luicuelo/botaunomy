@@ -38,6 +38,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.ItemHandlerHelper;
+import vazkii.botania.api.item.IManaDissolvable;
 import vazkii.botania.api.lexicon.ILexiconable;
 import vazkii.botania.api.lexicon.LexiconEntry;
 import vazkii.botania.api.state.BotaniaStateProps;
@@ -198,6 +199,15 @@ public class ElvenAvatarBlock extends BlockBase implements ILexiconable,TileEnti
 						dontGive=wandOnPlayer; //dont let give botania twigwand or block
 						dontGive|=(ItemStackType.isStackType(stackOnRealPlayerType , ItemStackType.Types.BLOCK)); //is a block, not tool
 						dontGive|=(ItemStackType.isStackType(stackOnRealPlayerType , ItemStackType.Types.NONE));
+						
+						//No dar Dissolvable si esta lleno
+						dontGive|=(
+								ItemStackType.isStackType(stackOnRealPlayerType , ItemStackType.Types.MANA)&&								
+									((stackOnRealPlayer.getItem() instanceof IManaDissolvable) &&
+										!(avatar.wandManaToTablet) &&
+										avatar.isFull()
+									)
+								);
 									
 						if (wandOnPlayer) avatar.onWanded(realPlayer, avatar.getInventory().get0());
 						if (!dontGive)							

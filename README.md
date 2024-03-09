@@ -23,6 +23,8 @@ resources so will be mid to late game Botania additions.
 * Emits a redstone pulse (value 1) when mana is consumed.
 * Avatar is disabled when there is a strong redstone signal (14-15).
 * MainHand Command prints the name of the element on the player's main hand.
+* Can be used to transfer mana long distances using mana tablets and Ender Storage mod.
+* Can use a caster gauntlet for Thaumcraft Infusion.(new).
 
 ## Credits
 
