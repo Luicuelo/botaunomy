@@ -683,6 +683,7 @@ public class TitleElvenAvatar_FakePlayerHelper {
 					avatar.recieveMana(-Config.rodManaCost);
 					checkManaIsEmpty();
 					emitResdstoneTimer.emitRedstone();
+					this.fakePlayerToInventory();
 					if(avatar.getWorld() instanceof WorldServer) {
 						new MessageMoveArm (getPos(),MessageMoveArm.RISE_ARM);
 						new MessageMana(getPos(),avatar.getCurrentMana());

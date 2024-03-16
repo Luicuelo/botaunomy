@@ -250,13 +250,24 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 		 return false;
 	}
 	
+	public boolean tryInsertInChest (ItemStack is) {
+		
+		TileEntityChest chest= this.findChest();	
+		if (chest!=null) {
+			boolean insertado= this.insertInChest(is, chest);
+			return insertado;
+		}
+		
+		return false;
+	}
+	
 	private  void  dropOrInsert(ElvenAvatarItemHadler inventory) {
 		boolean insertado=false;
-		TileEntityChest chest= this.findChest();	
+		
 		
 		ItemStack itemStack=inventory.get0();
+		insertado=tryInsertInChest(itemStack);
 		
-		if (chest!=null) insertado=this.insertInChest(itemStack, chest);
 		if (insertado) {			
 			if(itemStack.isEmpty()) itemStack=ItemStack.EMPTY;
 			//no es lo mismo estar vacio que ser el objeto vacio.
@@ -843,23 +854,32 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 			
 			boolean valid=true;
 			if (valid_super) {
-				ArrayList<ItemStackType.Types>  type=ItemStackType.getTypeTool(stack);	
 				
-				if (slot==1) valid=(ItemStackType.isStackType( type,ItemStackType.Types.ROD_WORK) && ItemStackType.isStackType( cacheType0,ItemStackType.Types.BREAK));
-				else {	
-					
-					if (type.get(0)==ItemStackType.Types.NONE) valid=false;
-					if (valid && ItemStackType.isStackType( type,ItemStackType.Types.BLOCK)) valid=false;
-					if (valid &&  ItemStackType.isStackType( type,ItemStackType.Types.ROD_WORK)) valid=false;
-					if (ItemStackType.isStackType( type ,ItemStackType.Types.MANA)) {
-						Item itemmana=stack.getItem();
-						if (itemmana instanceof IManaDissolvable && wandManaToTablet==false && isFull()) valid=false; //if idissolvabe and is full , return false
-					}					
-				}				
+				valid= allowedItems( slot, stack);
+				
 			}
 			return valid;
 		}
 			
+		public boolean allowedItems(int slot, ItemStack stack) {
+			boolean valid=true;
+			ArrayList<ItemStackType.Types>  type=ItemStackType.getTypeTool(stack);	
+			if (slot==1) valid=(ItemStackType.isStackType( type,ItemStackType.Types.ROD_WORK) && ItemStackType.isStackType( cacheType0,ItemStackType.Types.BREAK));
+			else {	
+				
+				if (type.get(0)==ItemStackType.Types.NONE) valid=false;
+				if (valid && ItemStackType.isStackType( type,ItemStackType.Types.BLOCK)) valid=false;
+				if (valid &&  ItemStackType.isStackType( type,ItemStackType.Types.ROD_WORK)) valid=false;
+				if (ItemStackType.isStackType( type ,ItemStackType.Types.MANA)) {
+					Item itemmana=stack.getItem();
+					if (itemmana instanceof IManaDissolvable && wandManaToTablet==false && isFull()) valid=false; //if idissolvabe and is full , return false
+				}					
+			}
+			return valid;
+			
+		}
+		
+		
 		public void set0(ItemStack stack) {
 			super.setStackInSlot(0, stack);
 		}

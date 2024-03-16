@@ -250,6 +250,35 @@ public class ElvenFakePlayerHandler  {
 		 if (stack.isEmpty()) avatar.getInventory().empty0();
 		 else 	avatar.getInventory().set0(stack);
 		 
+		
+		 stack= player.inventory.mainInventory.get(1);
+		 if (!stack.isEmpty()) {
+			 if (!avatar.getInventory().allowedItems(1, stack)) {
+				 //System.out.println("Slot:Offhand|"+stack.getDisplayName());
+				 boolean insertado=avatar.tryInsertInChest(stack);
+				 if(!insertado)player.dropItem(stack,true);
+				 player.inventory.setInventorySlotContents(1, ItemStack.EMPTY);	
+				 avatar.getInventory().empty1();
+			 }else {
+				 //System.out.println("Slot:Offhand|Permitido"+stack.getDisplayName());
+				 avatar.getInventory().set1(stack);
+			 }				 
+		 }else {
+			 //System.out.println("Slot:Offhand|Empty");
+		 }
+		
+
+		 for (int slot = 2; slot < player.inventory.mainInventory.size(); slot++) {
+		        ItemStack itemStack = player.inventory.mainInventory.get(slot);
+		        if (!itemStack.isEmpty()&& !itemStack.getDisplayName().equals("item.null.name")) {
+		        	//System.out.println("Slot:"+slot+"|"+itemStack.getDisplayName());
+		        	boolean insertado=avatar.tryInsertInChest(itemStack);
+		        	if(!insertado)player.dropItem(itemStack,true);		        	
+		            player.inventory.setInventorySlotContents(slot, ItemStack.EMPTY);		            
+		        }
+		 }
+		 
+		 
 		 typePlayerToolCache=avatar.getInventory().getType0();	
 		 
 	}	
