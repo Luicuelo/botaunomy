@@ -61,6 +61,7 @@ public class Registry {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	public void registerItems(RegistryEvent.Register<Item> event) {
 		IForgeRegistry<Item> registry = event.getRegistry();
 		
@@ -73,10 +74,7 @@ public class Registry {
 		for(int i = 0; i < blockItems.size(); i++) {			
 			ItemBlock itemBlock=new ItemBlock (blockItems.get(i));
 			ResourceLocation rl=new ResourceLocation (UtilResourceLocation.getItemBlockName(blockItems.get(i).resourceLocation)) ;
-					
-					
-			
-			
+									
 			//NibbleResourceLocation rl=blockItems.get(i).nibbleResourceLocation;
 			itemBlock.setRegistryName(rl);
 			itemBlock.setUnlocalizedName(UtilResourceLocation.getUnlocalizedName(rl));					

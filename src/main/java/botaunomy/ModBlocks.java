@@ -7,7 +7,7 @@
  ******************************************************************************/
 package botaunomy;
 
-import botaunomy.block.ElvenAvatarBlock;
+import botaunomy.block.tile.ElvenAvatarBlock;
 public class ModBlocks {
 
 	public static final ElvenAvatarBlock elven_avatar = new ElvenAvatarBlock();

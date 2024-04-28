@@ -9,28 +9,37 @@
 
 
 
-package botaunomy.block;
+package botaunomy.block.tile;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import botaunomy.ItemStackType;
+import botaunomy.ModInfo;
 import botaunomy.item.RodItem;
 import botaunomy.registry.BlockBase;
 import botaunomy.registry.TileEntityRegisteredBlocked;
-import botaunomy.ModInfo;
-import botaunomy.block.tile.TileElvenAvatar;
-import botaunomy.ItemStackType;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
-import net.minecraft.block.state.*;
+import net.minecraft.block.state.BlockFaceShape;
+import net.minecraft.block.state.BlockStateContainer;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.*;
+import net.minecraft.util.EnumBlockRenderType;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -59,6 +68,8 @@ public class ElvenAvatarBlock extends BlockBase implements ILexiconable,TileEnti
 
 	public ElvenAvatarBlock() {
 		super(Material.IRON, NAME);
+		
+        setTickRandomly(false);
 		setHardness(2.0F);
 		setSoundType(SoundType.METAL);
 		setDefaultState(blockState.getBaseState().withProperty(BotaniaStateProps.CARDINALS, EnumFacing.NORTH).withProperty(POWERED, false));
@@ -240,26 +251,63 @@ public class ElvenAvatarBlock extends BlockBase implements ILexiconable,TileEnti
 	
 	//player.sendStatusMessage(new TextComponentString(TextFormatting.GREEN + "->" +nameStackOnPlayer), false);	
 
+	
+	 @Override
+	    public void getDrops(NonNullList<ItemStack> drops, IBlockAccess iblockAccess, BlockPos pos, IBlockState state, int fortune) {
+
+		World world=(World)iblockAccess;
+		if (world.isRemote)return;    	  
+		if (drops==null)return;
+		drops.clear();
+		
+    	ItemStack drop =new ItemStack(this);
+    	TileEntity tile = world.getTileEntity(pos);	    	    	
+    	if (tile!=null && tile instanceof TileElvenAvatar) {
+    		TileElvenAvatar tileAvatar = (TileElvenAvatar) tile;
+    		int mana=tileAvatar.getCurrentMana();
+    		if(mana>0) {    			
+    			NBTTagCompound stackTags=new NBTTagCompound();
+    			stackTags.setInteger("mana", mana);    	
+    			drop.setTagCompound(stackTags);    		
+    		}    		
+    	}   
+    	drops.add(drop);
+	}
+    
+
+	
+    @Override //tinker
+    public boolean removedByPlayer(final IBlockState state, final World world, final BlockPos pos, final EntityPlayer player, final boolean willHarvest) {
+        // If it will harvest, delay deletion of the block until after getDrops
+        if(willHarvest && !player.capabilities.isCreativeMode) return true;
+        return super.removedByPlayer(state, world, pos, player, willHarvest);
+    }
+
+    
+	@Override // tinker
+	public void harvestBlock(final World world, final EntityPlayer player, final BlockPos pos, final IBlockState state,@Nullable final TileEntity te, final ItemStack stack) {
+		super.harvestBlock(world, player, pos, state, te, stack);
+		this.onBlockHarvested(world, pos, state, player);
+		TileElvenAvatar avatar = (TileElvenAvatar) world.getTileEntity(pos);
+		if (avatar != null) {
+			InventoryHelper.dropInventory(avatar, world, state, pos);
+			avatar.onBreak();
+			world.removeTileEntity(pos);
+			world.setBlockToAir(pos);
+		}
+	}
+	
 
 	@Override
 	public void breakBlock(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state) {
 		TileElvenAvatar avatar = (TileElvenAvatar) world.getTileEntity(pos);
-		InventoryHelper.dropInventory(avatar, world, state, pos);
-		super.breakBlock(world, pos, state);	
-	}
-	
-	@Override
-	public boolean removedByPlayer(IBlockState state,World worldIn, BlockPos pos, EntityPlayer player,boolean enableStats) {
-		TileElvenAvatar avatar = (TileElvenAvatar) worldIn.getTileEntity(pos);
-		if (avatar!=null) 
+		if (avatar != null) {
+			InventoryHelper.dropInventory(avatar, world, state, pos);
 			avatar.onBreak();
-		return super.removedByPlayer(state, worldIn, pos, player, enableStats);
+		}
+		super.breakBlock(world, pos, state);
 	}
 	
-	@Override
-	public void onBlockDestroyedByPlayer(World worldIn, BlockPos pos, IBlockState state) {		
-		super.onBlockDestroyedByPlayer(worldIn, pos, state);
-	}
 
 	@Override
 	public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {	
@@ -320,5 +368,25 @@ public class ElvenAvatarBlock extends BlockBase implements ILexiconable,TileEnti
 		customRegisterModels();
 	}
 
+	
+
+	public void onBlockPlaced(World world, BlockPos pos, ItemStack itemStackUsed) {
+		if (world.isRemote) return;
+
+		if (itemStackUsed.hasTagCompound()) {
+			NBTTagCompound tag = itemStackUsed.getTagCompound();
+			if (tag != null) {
+				int mana=tag.getInteger("mana");
+				if (mana >0) {
+					TileEntity tile = world.getTileEntity(pos);
+					if (tile != null && tile instanceof TileElvenAvatar) {
+						TileElvenAvatar tileAvatar = (TileElvenAvatar) tile;
+						tileAvatar.setCurrentMana(mana);
+					}
+				}
+			}
+		}
+	}
+	
 
 }

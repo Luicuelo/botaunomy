@@ -2,10 +2,6 @@ package botaunomy.client.render;
 
 import java.util.HashMap;
 
-import org.apache.logging.log4j.Level;
-
-import net.minecraftforge.fml.common.FMLLog;
-
 public class SwinSecuence extends Secuence {
 
 	public SwinSecuence(String pname, float pduration) {
@@ -24,7 +20,7 @@ public class SwinSecuence extends Secuence {
 		if (range!=null)
 			return(range.getValueSwing(percent));
 		else {
-			FMLLog.log("Botaunomy", Level.INFO, "Value not found: "+this.getName()+" range "+rangeName);
+			//FMLLog.log("Botaunomy", Level.INFO, "Value not found: "+this.getName()+" range "+rangeName);
 			return 0;		
 		}
 	}

@@ -53,6 +53,7 @@ public abstract class BlockBase extends Block  {
 			ModelHandler.registerBlockToState(this, 0, getDefaultState());
 	}
 	
+	@SuppressWarnings("deprecation")
 	@SideOnly(Side.CLIENT)
 	public void customRegisterModels() {
 		ModelLoader.setCustomStateMapper(this, new StateMap.Builder().ignore(BotaniaStateProps.CARDINALS).build());
@@ -62,6 +63,7 @@ public abstract class BlockBase extends Block  {
 	}
 	
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean eventReceived(IBlockState state, World world, BlockPos pos, int id, int param) {
 		super.eventReceived(state, world, pos, id, param);

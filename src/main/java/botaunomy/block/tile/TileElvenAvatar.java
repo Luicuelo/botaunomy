@@ -235,7 +235,7 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 		 
 		 for (int i = 0; i < chest.getSizeInventory(); ++i) {	
 			 itemStack = chest.getStackInSlot(i);
-			 if (itemStack==null || itemStack==ItemStack.EMPTY) {
+			 if (itemStack==null ||itemStack.isEmpty()|| itemStack==ItemStack.EMPTY) {
 				 itemStack=itemStackIn.copy();
 				 itemStack.setCount(1);
 				 chest.setInventorySlotContents(i, itemStack);
@@ -463,7 +463,7 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 				if (stackMana.isEmpty()) {
 					getInventory().take0();
 					
-					 detectarItemsCercanos(getWorld(),pos.getX(), pos.getY(), pos.getZ());
+					 detectNearbyItems(getWorld(),pos.getX(), pos.getY(), pos.getZ());
 				}
 				
 			}else 
@@ -475,13 +475,12 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 		}
 		return false;
 	}
-	public void detectarItemsCercanos(World world, double x, double y, double z)  {
+	public void detectNearbyItems(World world, double x, double y, double z)  {
 		if(world.isRemote) return;
 		
 	    int radio = 1; // Un bloque alrededor del jugador
-	    AxisAlignedBB areaBusqueda = new AxisAlignedBB(x - radio, y - radio, z - radio, x + radio, y + radio, z + radio);
-	    List<String> nombresStacks = new ArrayList<>();
-	    List<Entity> entidadesCercanas = world.getEntitiesWithinAABBExcludingEntity(null,areaBusqueda );
+	    AxisAlignedBB area = new AxisAlignedBB(x - radio, y - radio, z - radio, x + radio, y + radio, z + radio);	    
+	    List<Entity> entidadesCercanas = world.getEntitiesWithinAABBExcludingEntity(null,area );
 
 	    for (Entity entidad : entidadesCercanas) {
 	        if (entidad instanceof EntityItem  && !((EntityItem)entidad).isDead ) {	    
@@ -603,6 +602,10 @@ public class TileElvenAvatar extends TileSimpleInventory implements IAvatarTile 
 		return manaAvatar;
 	}
 
+	protected void setCurrentMana(int mana) {
+		 manaAvatar=mana;
+	}
+	
 	@Override
 	public boolean isFull() {
 		return manaAvatar >= MAX_MANA;

@@ -7,10 +7,7 @@
  ******************************************************************************/
 package botaunomy.client.render;
 
-import java.util.ArrayList;
-
 import javax.annotation.Nullable;
-
 
 import org.lwjgl.opengl.GL11;
 
@@ -18,6 +15,8 @@ import botaunomy.ItemStackType;
 import botaunomy.ModBlocks;
 import botaunomy.ModResources;
 import botaunomy.block.tile.TileElvenAvatar;
+import botaunomy.item.RodItem;
+//import vazkii.botania.client.model.ModelAvatar;
 import botaunomy.model.ModelAvatar;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -31,8 +30,6 @@ import net.minecraft.util.ResourceLocation;
 import vazkii.botania.api.item.IAvatarWieldable;
 import vazkii.botania.api.state.BotaniaStateProps;
 import vazkii.botania.client.core.handler.ClientTickHandler;
-import botaunomy.item.RodItem;
-//import vazkii.botania.client.model.ModelAvatar;
 
 /**
  * This is a straight of copy of Botania's RenderTileAvatar class because I needed to change the texture.  I should

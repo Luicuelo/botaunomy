@@ -2,13 +2,9 @@ package botaunomy.block.tile;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.logging.log4j.Level;
-
 import botaunomy.ItemStackType;
-import botaunomy.block.ElvenAvatarBlock;
 import botaunomy.config.Config;
 import botaunomy.network.MessageInventoryEmpty;
 import botaunomy.network.MessageMana;
@@ -32,12 +28,9 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.fml.common.FMLLog;
 import thaumcraft.api.casters.IInteractWithCaster;
 import vazkii.botania.api.mana.IManaUsingItem;
 import vazkii.botania.common.item.equipment.tool.ToolCommons;
@@ -374,6 +367,7 @@ public class TitleElvenAvatar_FakePlayerHelper {
 		
 	}
 	
+	/*
 	private void print(String t) { 
 	
 		World ws= getWorld();
@@ -394,7 +388,7 @@ public class TitleElvenAvatar_FakePlayerHelper {
 	       	   p.sendMessage(text);
 	        }
 	    }
-	}
+	}*/
 
 	public void rightClickBlockWhithItem() {
 			
@@ -800,13 +794,12 @@ public class TitleElvenAvatar_FakePlayerHelper {
 		
 	}
 	
-	
-	@SuppressWarnings("deprecation")
+
 	public void casterUse(TileElvenAvatar avatar,EntityPlayer cachePlayer ) {
 		
 		if (cachePlayer==null) return;
 		
-		String nombre=cachePlayer.getName();		
+		//String nombre=cachePlayer.getName();		
 		//FMLLog.log("Botaunomy", Level.INFO, "Usuario Caster: "+nombre);
 		
 		

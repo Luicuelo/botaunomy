@@ -43,7 +43,7 @@ version = ModInfo.version,
 useMetadata = true,
 dependencies = "required-after:botania",
 acceptedMinecraftVersions = "[1.12,1.12.2]",
-acceptableRemoteVersions = "[0.3.9.7]",
+acceptableRemoteVersions = "[0.3.9.8]",
 guiFactory = ModInfo.modid+".config.ConfigGui")
 
 public class Botaunomy
@@ -94,7 +94,6 @@ public class Botaunomy
         //
     }*/
     
-    
     @SubscribeEvent
     public void worldTickEvent(WorldTickEvent event) {
        if (!event.world.isRemote)
@@ -142,5 +141,7 @@ public class Botaunomy
         	   lastState=isNight;
            }
        }
-    }
+    }		
+    
+
 }

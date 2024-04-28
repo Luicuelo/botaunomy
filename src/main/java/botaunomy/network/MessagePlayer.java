@@ -2,7 +2,7 @@ package botaunomy.network;
 
 import java.util.UUID;
 
-import botaunomy.block.ElvenAvatarBlock;
+import botaunomy.block.tile.ElvenAvatarBlock;
 import botaunomy.block.tile.TileElvenAvatar;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;

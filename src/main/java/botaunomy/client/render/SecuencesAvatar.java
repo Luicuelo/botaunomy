@@ -2,10 +2,6 @@ package botaunomy.client.render;
 
 import java.util.HashMap;
 
-import org.apache.logging.log4j.Level;
-
-import net.minecraftforge.fml.common.FMLLog;
-
 public class SecuencesAvatar {
 
 	//only can be one secuence active
@@ -78,7 +74,7 @@ public class SecuencesAvatar {
 			if(secuence!=null)  {              
 				secuence.update(pticks);				
 			}
-			else FMLLog.log("Botaunomy", Level.INFO, "Secuence not found: "+SecuenceActiveSecuenceName);
+			//else FMLLog.log("Botaunomy", Level.INFO, "Secuence not found: "+SecuenceActiveSecuenceName);
 		}
 	}
 	
